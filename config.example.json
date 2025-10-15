@@ -1,0 +1,11 @@
+{
+  "jira": {
+    "baseUrl": "https://your-domain.atlassian.net",
+    "username": "your-email@example.com",
+    "apiToken": "your-api-token-here",
+    "jql": "filter = 'NDB-StatusUpdates'"
+  },
+  "server": {
+    "port": 3000
+  }
+}
