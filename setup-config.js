@@ -78,6 +78,11 @@ PORT=${config.server.port}
     fs.writeFileSync(envPath, envContent);
     console.log('✅ Environment variables saved to .env');
 
+    // Create private key file
+    const keyPath = path.join(__dirname, 'jira-key-private.txt');
+    fs.writeFileSync(keyPath, config.jira.apiToken);
+    console.log('✅ API token saved to jira-key-private.txt (this file is ignored by Git for security)');
+
     console.log('\n🎉 Configuration complete!');
     console.log('\nNext steps:');
     console.log('1. Run: npm install');

@@ -36,14 +36,16 @@ This will guide you through entering:
 - Server port (defaults to 3000)
 
 #### Option B: Manual Configuration
-Copy the example config and edit it with your details:
+Copy the example config and create your private key file:
 
 ```bash
 cp config.example.json config.json
+cp jira-key-private.example.txt jira-key-private.txt
 ```
 
-Then edit `config.json` with your Jira details:
+Then edit the files with your Jira details:
 
+**1. Edit `config.json`:**
 ```json
 {
   "jira": {
@@ -58,7 +60,12 @@ Then edit `config.json` with your Jira details:
 }
 ```
 
-**⚠️ Important**: The `config.json` file is ignored by Git to protect your credentials.
+**2. Edit `jira-key-private.txt`:**
+```
+YOUR_ACTUAL_JIRA_API_TOKEN_HERE
+```
+
+**⚠️ Important**: Both `config.json` and `jira-key-private.txt` files are ignored by Git to protect your credentials.
 
 #### Option C: Environment Variables
 Create a `.env` file in the project root:
@@ -171,16 +178,18 @@ NODE_ENV=development npm start
 
 ```
 ndb-weekly-status/
-├── server.js              # Express server
-├── jira-client.js         # Jira API client
-├── setup-config.js        # Interactive setup script
-├── config.example.json    # Example configuration (safe to commit)
-├── config.json            # Your configuration (ignored by Git)
-├── .env                   # Environment variables (ignored by Git)
-├── package.json           # Dependencies
+├── server.js                      # Express server
+├── jira-client.js                 # Jira API client
+├── setup-config.js                # Interactive setup script
+├── config.example.json            # Example configuration (safe to commit)
+├── config.json                    # Your configuration (ignored by Git)
+├── jira-key-private.example.txt   # Example API key file (safe to commit)
+├── jira-key-private.txt           # Your API key (ignored by Git)
+├── .env                           # Environment variables (ignored by Git)
+├── package.json                   # Dependencies
 ├── public/
-│   └── index.html         # Web interface
-└── README.md              # This file
+│   └── index.html                 # Web interface
+└── README.md                      # This file
 ```
 
 ### Adding Features

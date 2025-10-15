@@ -1,0 +1,5 @@
+# Example Jira API Key file
+# Copy this file to jira-key-private.txt and add your actual API token
+# The jira-key-private.txt file is ignored by Git for security
+
+YOUR_JIRA_API_TOKEN_HERE

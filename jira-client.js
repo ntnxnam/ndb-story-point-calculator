@@ -28,11 +28,26 @@ class JiraClient {
       };
     }
 
-    // Fallback to config.json
+    // Try to load from config.json
     try {
       const configPath = path.join(__dirname, 'config.json');
       const configData = fs.readFileSync(configPath, 'utf8');
-      return JSON.parse(configData);
+      const config = JSON.parse(configData);
+      
+      // Try to load API token from private key file
+      try {
+        const keyPath = path.join(__dirname, 'jira-key-private.txt');
+        const apiToken = fs.readFileSync(keyPath, 'utf8').trim();
+        
+        // Replace placeholder or use the token from file
+        if (apiToken && !apiToken.includes('YOUR_JIRA_API_TOKEN_HERE')) {
+          config.jira.apiToken = apiToken;
+        }
+      } catch (keyError) {
+        console.log('No jira-key-private.txt found, using token from config.json');
+      }
+      
+      return config;
     } catch (error) {
       console.error('Error loading config:', error.message);
       throw new Error('Configuration not found. Please set up config.json or environment variables.');

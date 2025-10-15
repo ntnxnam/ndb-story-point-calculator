@@ -13,6 +13,7 @@ yarn-error.log*
 
 # Configuration files with sensitive data
 config.json
+jira-key-private.txt
 
 # Logs
 logs
