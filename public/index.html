@@ -357,6 +357,93 @@
             color: #000;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 10% auto;
+            padding: 0;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #666;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #000;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #000;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -405,6 +492,240 @@
         .overlay.show {
             display: block;
         }
+
+        /* Insights Section */
+        .insights-section {
+            margin: 20px 0;
+        }
+
+        .insights-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .insight-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .feature-selector-section {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .feature-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #ffffff;
+            border: 2px solid #e5e5e5;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .feature-chip:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-chip.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .feature-chip .feature-key {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .feature-chip.active .feature-key {
+            color: white;
+        }
+
+        .feature-chip .feature-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #f3f4f6;
+            color: #666;
+        }
+
+        .feature-chip.active .feature-status {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        /* Executive View Styles */
+        .executive-view {
+            padding: 20px;
+        }
+
+        .executive-summary-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .executive-summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .executive-summary-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .executive-summary-card .label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f8f8;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .breakdown-item:hover {
+            background: #e8e8e8;
+        }
+
+        .breakdown-item .type-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .breakdown-item .type-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .hierarchical-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f8f8;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .hierarchical-item .level-1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .hierarchical-item .level-2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #764ba2;
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .hierarchical-item .level-3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #10b981;
+            margin-left: 40px;
+            margin-bottom: 5px;
+        }
+
+        .hierarchical-item .level-4 {
+            font-size: 12px;
+            color: #666;
+            margin-left: 60px;
+            margin-bottom: 3px;
+        }
+
+        .feature-card {
+            background: #f8f8f8;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feature-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-card.expanded {
+            border-color: #667eea;
+            background: #ffffff;
+        }
+
+        .feature-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feature-card-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .feature-card-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .feature-card-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .feature-card.expanded .feature-card-details {
+            display: block;
+        }
+
+        .feature-card.expanded .feature-card-header span:last-child {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            .breakdown-sections {
+                grid-template-columns: 1fr !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -416,6 +737,7 @@
         </div>
         <nav class="sidebar-nav">
             <a href="#" class="nav-item active" onclick="showDashboard()">Dashboard</a>
+            <a href="#" class="nav-item" onclick="showExecutiveView()">📊 Executive View</a>
             <a href="config.html" class="nav-item">Configure Columns</a>
             <a href="#" class="nav-item" onclick="fetchAllData()">Fetch All Data</a>
             <a href="#" class="nav-item" onclick="refreshColumns()">Refresh Columns</a>
@@ -442,9 +764,83 @@
 
         <!-- Content -->
         <div class="content">
+            <!-- Authentication Modal -->
+            <div id="authModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🔐 Authenticate with Jira</h2>
+                        <span class="close" onclick="closeAuthModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <p>Enter your Jira Bearer Token (PAT) to authenticate. This will be stored locally in your browser and used for all API calls.</p>
+                        <p><strong>Note:</strong> Your company requires Bearer token authentication. The token will be validated before saving.</p>
+                        <p><strong>How to get your token:</strong> Go to Jira → Profile → Security → API tokens → Create token</p>
+                        <div class="form-group">
+                            <label for="authToken">Bearer Token (PAT):</label>
+                            <input type="password" id="authToken" class="form-input" placeholder="Enter your Jira API token">
+                        </div>
+                        <div class="form-group">
+                            <label for="authEmail">Email (optional, for reference):</label>
+                            <input type="email" id="authEmail" class="form-input" placeholder="your.email@nutanix.com">
+                        </div>
+                        <div id="authError" class="error" style="display: none; margin-top: 10px;"></div>
+                        <div class="modal-actions">
+                            <button class="btn primary" onclick="authenticateToken()">Authenticate</button>
+                            <button class="btn" onclick="closeAuthModal()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confluence Summary Modal -->
+            <div id="confluenceModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h2 id="confluenceModalTitle">📄 Confluence Summary</h2>
+                        <span class="close" onclick="closeConfluenceModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div id="confluenceModalContent">
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="loading">Loading summary...</div>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <a id="confluenceModalLink" href="#" target="_blank" class="btn" style="background: #3b82f6; color: white; text-decoration: none;">Open in Confluence</a>
+                            <button class="btn" onclick="closeConfluenceModal()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature/Initiative Selector -->
+            <div class="feature-selector-section" style="background: #f8f8f8; border: 1px solid #e5e5e5; border-radius: 4px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">🎯 Feature/Initiative Tracker</h3>
+                
+                <!-- Manual Input -->
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+                    <input type="text" id="featureKey" class="jql-input" placeholder="Enter Feature Key (e.g., ERA-21110)" style="flex: 1; min-width: 200px;">
+                    <button class="btn primary" onclick="fetchFeatureTickets()">🔍 Fetch All Related Tickets</button>
+                    <button class="btn" onclick="clearFeatureSearch()">Clear</button>
+                </div>
+                
+                <!-- Features List (Clickable) -->
+                <div id="featuresListContainer" style="display: none;">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #666;">Click a feature to drill down:</div>
+                    <div id="featuresList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                </div>
+                
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    This will find all tickets related to the feature including: direct matches, parent links, FEAT IDs, portfolio children, epics, and subtasks.
+                </p>
+            </div>
+
             <!-- Controls -->
             <div class="controls">
                 <input type="text" id="customJql" class="jql-input" placeholder="Enter custom JQL query (optional)" value="filter = 165194">
+                <button id="authButton" class="btn" onclick="showAuthModal()" style="background: #f59e0b; color: white;">
+                    🔐 Authenticate
+                </button>
                 <button class="btn primary" onclick="fetchAllData()">Fetch All Data</button>
                 <button class="btn" onclick="refreshColumns()">Refresh Columns</button>
                 <a href="config.html" class="btn">Configure Columns</a>
@@ -460,23 +856,92 @@
                 </div>
             </div>
 
-            <!-- Stats -->
+            <!-- BA/BI Dashboard Stats -->
             <div class="stats" id="stats" style="display: none;">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalIssues">0</div>
-                    <div class="stat-label">Total Issues</div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="stat-number" id="totalIssues" style="color: white;">0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">Total Tickets</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="inProgressIssues">0</div>
-                    <div class="stat-label">In Progress</div>
+                <div class="stat-card" style="background: #f59e0b; color: white;">
+                    <div class="stat-number" id="pendingVerification" style="color: white;">0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">⚠️ Pending Verification</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="doneIssues">0</div>
-                    <div class="stat-label">Done</div>
+                <div class="stat-card" style="background: #3b82f6; color: white;">
+                    <div class="stat-number" id="inProgressIssues" style="color: white;">0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">In Progress</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="todoIssues">0</div>
-                    <div class="stat-label">To Do</div>
+                <div class="stat-card" style="background: #10b981; color: white;">
+                    <div class="stat-number" id="doneIssues" style="color: white;">0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">✅ Verified/Closed</div>
+                </div>
+                <div class="stat-card" style="background: #6b7280; color: white;">
+                    <div class="stat-number" id="todoIssues" style="color: white;">0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">To Do</div>
+                </div>
+                <div class="stat-card" style="background: #ef4444; color: white;">
+                    <div class="stat-number" id="blockedIssues" style="color: white;">0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9);">🚫 Blocked</div>
+                </div>
+            </div>
+
+            <!-- Actionable Insights Section -->
+            <div id="insightsSection" class="insights-section" style="display: none; background: #ffffff; border: 1px solid #e5e5e5; border-radius: 4px; padding: 20px; margin: 20px 0;">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">📊 Actionable Insights</h3>
+                <div id="insightsContent" class="insights-content"></div>
+            </div>
+
+            <!-- Executive View Section -->
+            <div id="executiveView" class="executive-view" style="display: none;">
+                <div class="executive-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px;">
+                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">📊 Release Overview</h2>
+                    <p style="font-size: 16px; opacity: 0.9;">Executive dashboard with hierarchical breakdown and drill-down capabilities</p>
+                </div>
+
+                <!-- Executive Summary Cards -->
+                <div class="executive-summary" id="executiveSummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Breakdown Sections -->
+                <div class="breakdown-sections" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <!-- Type Breakdown -->
+                    <div class="breakdown-card" style="background: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px;">
+                        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">📋 Breakdown by Type</h3>
+                        <div id="typeBreakdown" class="breakdown-content"></div>
+                    </div>
+
+                    <!-- Priority Breakdown -->
+                    <div class="breakdown-card" style="background: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px;">
+                        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">⚡ Breakdown by Priority</h3>
+                        <div id="priorityBreakdown" class="breakdown-content"></div>
+                    </div>
+                </div>
+
+                <!-- Hierarchical View -->
+                <div class="hierarchical-view" style="background: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">🏗️ Hierarchical Structure</h3>
+                    <p style="color: #666; margin-bottom: 20px; font-size: 14px;">
+                        X-FEAT/Capability → Feature/Initiative → Epic → Task/Bug/Test/Improvement
+                    </p>
+                    <div id="hierarchicalContent" class="hierarchical-content"></div>
+                </div>
+
+                <!-- Feature Drill-Down -->
+                <div class="feature-drilldown" style="background: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">🔍 Feature Drill-Down</h3>
+                    <div id="featureDrillDown" class="drilldown-content"></div>
+                </div>
+
+                <!-- Executive Confluence Summary -->
+                <div class="confluence-executive-summary" style="background: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px;">
+                    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">📋 Executive Summary from Confluence</h3>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                        Aggregated summaries from CG and PG Confluence pages. Click "Fetch Summaries" to load all summaries.
+                    </p>
+                    <button class="btn primary" onclick="fetchAndDisplayExecutiveSummaries()" id="fetchSummariesBtn" style="margin-bottom: 20px;">
+                        📥 Fetch All Summaries
+                    </button>
+                    <div id="executiveConfluenceSummaries" class="executive-summaries-content"></div>
                 </div>
             </div>
 
@@ -522,8 +987,601 @@
 
         function showDashboard() {
             toggleSidebar();
+            // Hide executive view
+            const executiveView = document.getElementById('executiveView');
+            if (executiveView) {
+                executiveView.style.display = 'none';
+            }
+            
+            // Show regular dashboard elements
+            const content = document.querySelector('.content');
+            if (content) {
+                Array.from(content.children).forEach(child => {
+                    if (child.id !== 'executiveView' && child.id !== 'authModal') {
+                        child.style.display = '';
+                    }
+                });
+            }
         }
 
+        function showExecutiveView() {
+            toggleSidebar();
+            // Hide regular dashboard
+            const regularContent = document.querySelector('.content');
+            Array.from(regularContent.children).forEach(child => {
+                if (child.id !== 'executiveView' && child.id !== 'authModal') {
+                    child.style.display = 'none';
+                }
+            });
+            
+            // Show executive view
+            const executiveView = document.getElementById('executiveView');
+            executiveView.style.display = 'block';
+            
+            // Build executive dashboard if we have data
+            if (currentIssues && currentIssues.length > 0) {
+                buildExecutiveDashboard(currentIssues);
+            } else {
+                // Fetch data first
+                fetchAllData().then(() => {
+                    if (currentIssues && currentIssues.length > 0) {
+                        buildExecutiveDashboard(currentIssues);
+                    }
+                });
+            }
+        }
+
+        // Build Executive Dashboard
+        function buildExecutiveDashboard(issues) {
+            buildExecutiveSummary(issues);
+            buildTypeBreakdown(issues);
+            buildPriorityBreakdown(issues);
+            buildHierarchicalView(issues);
+            buildFeatureDrillDown(issues);
+            // Note: Confluence summaries are fetched on demand via button
+        }
+
+        // Fetch and display executive summaries
+        async function fetchAndDisplayExecutiveSummaries() {
+            const btn = document.getElementById('fetchSummariesBtn');
+            const summariesContainer = document.getElementById('executiveConfluenceSummaries');
+            
+            if (!currentIssues || currentIssues.length === 0) {
+                alert('Please fetch Jira data first.');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Fetching...';
+            summariesContainer.innerHTML = '<div style="padding: 20px; text-align: center;"><div class="loading">Fetching summaries from Confluence...</div></div>';
+            
+            try {
+                const summaries = await fetchAllConfluenceSummaries(currentIssues);
+                
+                // Group summaries by type (CG vs PG)
+                const cgSummaries = [];
+                const pgSummaries = [];
+                
+                currentIssues.forEach(issue => {
+                    if (issue.cg && summaries[issue.cg] && summaries[issue.cg].success) {
+                        cgSummaries.push({
+                            issueKey: issue.key,
+                            issueSummary: issue.summary,
+                            url: issue.cg,
+                            summary: summaries[issue.cg].summary,
+                            title: summaries[issue.cg].title
+                        });
+                    }
+                    if (issue.pg && summaries[issue.pg] && summaries[issue.pg].success) {
+                        pgSummaries.push({
+                            issueKey: issue.key,
+                            issueSummary: issue.summary,
+                            url: issue.pg,
+                            summary: summaries[issue.pg].summary,
+                            title: summaries[issue.pg].title
+                        });
+                    }
+                });
+                
+                // Display summaries
+                let html = '';
+                
+                if (cgSummaries.length > 0) {
+                    html += '<div style="margin-bottom: 30px;">';
+                    html += '<h4 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #667eea;">📘 CG Summaries</h4>';
+                    cgSummaries.forEach(item => {
+                        html += `
+                            <div style="background: #f8f8f8; border-left: 4px solid #667eea; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                    <div>
+                                        <strong><a href="${item.url}" target="_blank" style="color: #667eea; text-decoration: none;">${item.issueKey}</a></strong>
+                                        <span style="color: #666; margin-left: 10px;">${item.issueSummary}</span>
+                                    </div>
+                                    <a href="${item.url}" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">Open →</a>
+                                </div>
+                                <div style="background: white; padding: 12px; border-radius: 4px; font-size: 14px; line-height: 1.6; color: #333;">
+                                    ${item.summary.substring(0, 300)}${item.summary.length > 300 ? '...' : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                if (pgSummaries.length > 0) {
+                    html += '<div style="margin-bottom: 30px;">';
+                    html += '<h4 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #10b981;">📗 PG Summaries</h4>';
+                    pgSummaries.forEach(item => {
+                        html += `
+                            <div style="background: #f8f8f8; border-left: 4px solid #10b981; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                    <div>
+                                        <strong><a href="${item.url}" target="_blank" style="color: #10b981; text-decoration: none;">${item.issueKey}</a></strong>
+                                        <span style="color: #666; margin-left: 10px;">${item.issueSummary}</span>
+                                    </div>
+                                    <a href="${item.url}" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">Open →</a>
+                                </div>
+                                <div style="background: white; padding: 12px; border-radius: 4px; font-size: 14px; line-height: 1.6; color: #333;">
+                                    ${item.summary.substring(0, 300)}${item.summary.length > 300 ? '...' : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                if (cgSummaries.length === 0 && pgSummaries.length === 0) {
+                    html = '<div style="padding: 20px; text-align: center; color: #666;"><p>No Confluence summaries found. Make sure CG and PG fields are populated in Jira issues.</p></div>';
+                }
+                
+                summariesContainer.innerHTML = html;
+                btn.disabled = false;
+                btn.textContent = '📥 Fetch All Summaries';
+            } catch (err) {
+                console.error('Error fetching executive summaries:', err);
+                summariesContainer.innerHTML = `
+                    <div style="padding: 20px; color: #dc2626;">
+                        <p><strong>Error:</strong> ${err.message}</p>
+                        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                            Make sure you have provided your Confluence PAT token in <code>confluence-key-private.txt</code>
+                        </p>
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.textContent = '📥 Fetch All Summaries';
+            }
+        }
+
+        // Build Executive Summary Cards
+        function buildExecutiveSummary(issues) {
+            const summaryContainer = document.getElementById('executiveSummary');
+            summaryContainer.innerHTML = '';
+            
+            // Calculate total from all feature tickets (below epic level) if available
+            let allTicketsBelowEpic = [];
+            let totalBelowEpic = 0;
+            
+            if (Object.keys(featureTicketData).length > 0) {
+                // Aggregate all tickets below epic level from all features
+                Object.values(featureTicketData).forEach(data => {
+                    if (data.belowEpic) {
+                        allTicketsBelowEpic = allTicketsBelowEpic.concat(data.belowEpic);
+                    }
+                });
+                totalBelowEpic = allTicketsBelowEpic.length;
+            }
+            
+            // Use the aggregated tickets if available, otherwise use current issues
+            const ticketsToAnalyze = totalBelowEpic > 0 ? allTicketsBelowEpic : issues;
+            const total = totalBelowEpic > 0 ? totalBelowEpic : issues.length;
+            
+            const pendingVerification = ticketsToAnalyze.filter(i => i.status && i.status.toLowerCase() === 'resolved').length;
+            const inProgress = ticketsToAnalyze.filter(i => 
+                i.status && (
+                    i.status.toLowerCase().includes('progress') || 
+                    i.status.toLowerCase().includes('development')
+                ) && i.status.toLowerCase() !== 'resolved'
+            ).length;
+            const done = ticketsToAnalyze.filter(i => 
+                i.status && (
+                    i.status.toLowerCase().includes('done') || 
+                    i.status.toLowerCase().includes('closed')
+                ) && i.status.toLowerCase() !== 'resolved'
+            ).length;
+            
+            const features = issues.filter(i => {
+                const type = i.issuetype ? i.issuetype.toLowerCase() : '';
+                return type.includes('feature') || type.includes('initiative');
+            }).length;
+            
+            const bugs = ticketsToAnalyze.filter(i => {
+                const type = i.issuetype ? i.issuetype.toLowerCase() : '';
+                return type.includes('bug');
+            }).length;
+            
+            const completionRate = total > 0 ? Math.round((done / total) * 100) : 0;
+            
+            const summaryCards = [
+                { label: 'Total Tickets', value: total, color: '#667eea' },
+                { label: 'Features/Initiatives', value: features, color: '#764ba2' },
+                { label: 'Bugs', value: bugs, color: '#ef4444' },
+                { label: 'In Progress', value: inProgress, color: '#3b82f6' },
+                { label: 'Pending Verification', value: pendingVerification, color: '#f59e0b' },
+                { label: 'Completion Rate', value: `${completionRate}%`, color: '#10b981' }
+            ];
+            
+            summaryCards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'executive-summary-card';
+                cardDiv.style.borderTop = `4px solid ${card.color}`;
+                cardDiv.innerHTML = `
+                    <div class="number" style="color: ${card.color}">${card.value}</div>
+                    <div class="label">${card.label}</div>
+                `;
+                summaryContainer.appendChild(cardDiv);
+            });
+        }
+
+        // Build Type Breakdown
+        function buildTypeBreakdown(issues) {
+            const breakdownContainer = document.getElementById('typeBreakdown');
+            breakdownContainer.innerHTML = '';
+            
+            const typeMap = {};
+            issues.forEach(issue => {
+                const type = issue.issuetype || 'Unknown';
+                typeMap[type] = (typeMap[type] || 0) + 1;
+            });
+            
+            const sortedTypes = Object.entries(typeMap)
+                .sort((a, b) => b[1] - a[1]);
+            
+            sortedTypes.forEach(([type, count]) => {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.onclick = () => filterByType(type);
+                item.innerHTML = `
+                    <span class="type-name">${type}</span>
+                    <span class="type-count">${count}</span>
+                `;
+                breakdownContainer.appendChild(item);
+            });
+        }
+
+        // Build Priority Breakdown
+        function buildPriorityBreakdown(issues) {
+            const breakdownContainer = document.getElementById('priorityBreakdown');
+            breakdownContainer.innerHTML = '';
+            
+            const priorityMap = {};
+            issues.forEach(issue => {
+                const priority = issue.priority || 'Unprioritized';
+                priorityMap[priority] = (priorityMap[priority] || 0) + 1;
+            });
+            
+            const priorityOrder = ['Critical', 'High', 'Medium', 'Low', 'Lowest', 'Unprioritized'];
+            const sortedPriorities = Object.entries(priorityMap)
+                .sort((a, b) => {
+                    const aIndex = priorityOrder.indexOf(a[0]);
+                    const bIndex = priorityOrder.indexOf(b[0]);
+                    if (aIndex === -1 && bIndex === -1) return 0;
+                    if (aIndex === -1) return 1;
+                    if (bIndex === -1) return -1;
+                    return aIndex - bIndex;
+                });
+            
+            sortedPriorities.forEach(([priority, count]) => {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.onclick = () => filterByPriority(priority);
+                
+                let priorityColor = '#6b7280';
+                if (priority.toLowerCase().includes('critical')) priorityColor = '#dc2626';
+                else if (priority.toLowerCase().includes('high')) priorityColor = '#ef4444';
+                else if (priority.toLowerCase().includes('medium')) priorityColor = '#f59e0b';
+                else if (priority.toLowerCase().includes('low')) priorityColor = '#10b981';
+                
+                item.innerHTML = `
+                    <span class="type-name">${priority}</span>
+                    <span class="type-count" style="background: ${priorityColor}">${count}</span>
+                `;
+                breakdownContainer.appendChild(item);
+            });
+        }
+
+        // Build Hierarchical View
+        function buildHierarchicalView(issues) {
+            const hierarchicalContainer = document.getElementById('hierarchicalContent');
+            hierarchicalContainer.innerHTML = '';
+            
+            // Group by hierarchy level
+            const capabilities = [];
+            const features = [];
+            const epics = [];
+            const tasks = [];
+            
+            issues.forEach(issue => {
+                const type = (issue.issuetype || '').toLowerCase();
+                const key = issue.key || '';
+                
+                if (type.includes('capability') || key.includes('X-FEAT')) {
+                    capabilities.push(issue);
+                } else if (type.includes('feature') || type.includes('initiative')) {
+                    features.push(issue);
+                } else if (type.includes('epic')) {
+                    epics.push(issue);
+                } else {
+                    tasks.push(issue);
+                }
+            });
+            
+            // Display hierarchy
+            if (capabilities.length > 0) {
+                capabilities.forEach(cap => {
+                    const item = document.createElement('div');
+                    item.className = 'hierarchical-item';
+                    item.innerHTML = `
+                        <div class="level-1">🏛️ ${cap.key}: ${cap.summary || 'N/A'}</div>
+                    `;
+                    hierarchicalContainer.appendChild(item);
+                });
+            }
+            
+            if (features.length > 0) {
+                features.forEach(feat => {
+                    const item = document.createElement('div');
+                    item.className = 'hierarchical-item';
+                    item.innerHTML = `
+                        <div class="level-2">🎯 ${feat.key}: ${feat.summary || 'N/A'}</div>
+                    `;
+                    hierarchicalContainer.appendChild(item);
+                });
+            }
+            
+            if (epics.length > 0) {
+                epics.forEach(epic => {
+                    const item = document.createElement('div');
+                    item.className = 'hierarchical-item';
+                    item.innerHTML = `
+                        <div class="level-3">📦 ${epic.key}: ${epic.summary || 'N/A'}</div>
+                    `;
+                    hierarchicalContainer.appendChild(item);
+                });
+            }
+            
+            if (tasks.length > 0) {
+                const taskGroups = {};
+                tasks.forEach(task => {
+                    const type = task.issuetype || 'Task';
+                    if (!taskGroups[type]) taskGroups[type] = [];
+                    taskGroups[type].push(task);
+                });
+                
+                Object.entries(taskGroups).forEach(([type, typeTasks]) => {
+                    const item = document.createElement('div');
+                    item.className = 'hierarchical-item';
+                    item.innerHTML = `
+                        <div class="level-4">
+                            <strong>${type}:</strong> ${typeTasks.length} tickets
+                            ${typeTasks.slice(0, 5).map(t => `<a href="${t.url}" target="_blank" style="margin-left: 10px; color: #3b82f6;">${t.key}</a>`).join('')}
+                            ${typeTasks.length > 5 ? ` +${typeTasks.length - 5} more` : ''}
+                        </div>
+                    `;
+                    hierarchicalContainer.appendChild(item);
+                });
+            }
+        }
+
+        // Store feature ticket data
+        let featureTicketData = {}; // { featureKey: { allTickets: [], belowEpic: [] } }
+
+        // Build Feature Drill-Down
+        function buildFeatureDrillDown(issues) {
+            const drillDownContainer = document.getElementById('featureDrillDown');
+            drillDownContainer.innerHTML = '';
+            
+            // Get all features and initiatives
+            const features = issues.filter(issue => {
+                const type = (issue.issuetype || '').toLowerCase();
+                return type.includes('feature') || type.includes('initiative');
+            });
+            
+            if (features.length === 0) {
+                drillDownContainer.innerHTML = '<p style="color: #666;">No features or initiatives found. Use the Feature/Initiative Tracker to fetch related tickets.</p>';
+                return;
+            }
+            
+            // Add a button to fetch all features at once
+            const fetchAllButton = document.createElement('div');
+            fetchAllButton.style.cssText = 'margin-bottom: 20px; padding: 15px; background: #f0f9ff; border: 1px solid #3b82f6; border-radius: 8px;';
+            fetchAllButton.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="font-size: 16px;">📊 Fetch All Feature Tickets</strong>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+                            Click to fetch all tickets (below epic level) for all ${features.length} features/initiatives. This will update the total ticket count.
+                        </p>
+                    </div>
+                    <button class="btn primary" onclick="fetchAllFeatureTickets()" id="fetchAllFeaturesBtn">
+                        🔍 Fetch All
+                    </button>
+                </div>
+                <div id="fetchAllProgress" style="display: none; margin-top: 10px; font-size: 14px; color: #666;"></div>
+            `;
+            drillDownContainer.appendChild(fetchAllButton);
+            
+            features.forEach(feature => {
+                const featureCard = document.createElement('div');
+                featureCard.className = 'feature-card';
+                featureCard.id = `feature-${feature.key}`;
+                featureCard.onclick = (e) => {
+                    // Don't toggle if clicking the link or button
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a') || e.target.closest('button')) {
+                        return;
+                    }
+                    featureCard.classList.toggle('expanded');
+                };
+                
+                const status = feature.status || 'Unknown';
+                const priority = feature.priority || 'Unprioritized';
+                
+                // Check if we have fetched data for this feature
+                const featureData = featureTicketData[feature.key];
+                const hasData = featureData && featureData.belowEpic && featureData.belowEpic.length > 0;
+                
+                const relatedCount = hasData ? featureData.belowEpic.length : 0;
+                const relatedBugs = hasData ? featureData.belowEpic.filter(t => {
+                    const type = (t.issuetype || '').toLowerCase();
+                    return type.includes('bug');
+                }).length : 0;
+                const relatedTasks = hasData ? featureData.belowEpic.filter(t => {
+                    const type = (t.issuetype || '').toLowerCase();
+                    return type.includes('task') || type.includes('story') || type.includes('improvement') || type.includes('test');
+                }).length : 0;
+                const relatedEpics = hasData ? featureData.allTickets.filter(t => {
+                    const type = (t.issuetype || '').toLowerCase();
+                    return type.includes('epic');
+                }).length : 0;
+                
+                featureCard.innerHTML = `
+                    <div class="feature-card-header">
+                        <div>
+                            <div class="feature-card-title">${feature.key}: ${feature.summary || 'N/A'}</div>
+                            <div class="feature-card-stats">
+                                <span>Status: ${status}</span>
+                                <span>Priority: ${priority}</span>
+                                <span style="font-weight: 600; color: ${hasData ? '#10b981' : '#f59e0b'}">
+                                    ${hasData ? `Tickets: ${relatedCount}` : 'Not fetched'}
+                                </span>
+                            </div>
+                        </div>
+                        <span style="font-size: 20px; transition: transform 0.2s;">▼</span>
+                    </div>
+                    <div class="feature-card-details">
+                        ${hasData ? `
+                        <div style="margin-bottom: 15px;">
+                            <strong>Related Tickets Breakdown (Below Epic Level):</strong>
+                            <div style="display: flex; gap: 20px; margin-top: 10px; font-size: 14px;">
+                                <span>🐛 Bugs: ${relatedBugs}</span>
+                                <span>📋 Tasks/Stories: ${relatedTasks}</span>
+                                <span>📦 Epics: ${relatedEpics}</span>
+                                <span>📊 Total Below Epic: ${relatedCount}</span>
+                            </div>
+                        </div>
+                        ` : `
+                        <div style="margin-bottom: 15px; padding: 10px; background: #fef3c7; border-radius: 4px;">
+                            <p style="margin: 0; color: #92400e; font-size: 14px;">
+                                ⚠️ Click "Fetch All Related Tickets" to get accurate counts of all tickets below epic level.
+                            </p>
+                        </div>
+                        `}
+                        <div style="margin-bottom: 10px;">
+                            <button class="btn primary" onclick="fetchFeatureTicketsFor('${feature.key}', true)" style="margin-right: 10px;">
+                                🔍 Fetch All Related Tickets
+                            </button>
+                            <a href="${feature.url}" target="_blank" style="color: #3b82f6; text-decoration: none; padding: 8px 16px; border: 1px solid #3b82f6; border-radius: 4px; display: inline-block;">
+                                View in Jira →
+                            </a>
+                        </div>
+                    </div>
+                `;
+                drillDownContainer.appendChild(featureCard);
+            });
+        }
+
+        // Fetch all tickets for all features
+        async function fetchAllFeatureTickets() {
+            const features = currentIssues.filter(issue => {
+                const type = (issue.issuetype || '').toLowerCase();
+                return type.includes('feature') || type.includes('initiative');
+            });
+            
+            if (features.length === 0) {
+                alert('No features or initiatives found in current data.');
+                return;
+            }
+            
+            const fetchAllBtn = document.getElementById('fetchAllFeaturesBtn');
+            const progressDiv = document.getElementById('fetchAllProgress');
+            fetchAllBtn.disabled = true;
+            fetchAllBtn.textContent = '⏳ Fetching...';
+            progressDiv.style.display = 'block';
+            progressDiv.innerHTML = `Fetching tickets for ${features.length} features...`;
+            
+            let totalBelowEpic = 0;
+            let completed = 0;
+            
+            // Fetch tickets for each feature sequentially to avoid overwhelming the API
+            for (const feature of features) {
+                try {
+                    progressDiv.innerHTML = `Fetching ${feature.key}... (${completed + 1}/${features.length})`;
+                    
+                    const storedToken = localStorage.getItem('jira_bearer_token');
+                    if (!storedToken) {
+                        throw new Error('Please authenticate first.');
+                    }
+                    
+                    const jql = generateFeatureJQL(feature.key);
+                    const url = `http://localhost:3001/api/fetch-all-data?jql=${encodeURIComponent(jql)}&t=${Date.now()}`;
+                    const response = await fetch(url, {
+                        headers: {
+                            'X-Jira-Token': storedToken
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.issues) {
+                        // Filter tickets below epic level
+                        const belowEpic = data.issues.filter(issue => {
+                            const type = (issue.issuetype || '').toLowerCase();
+                            return !type.includes('epic') && !type.includes('feature') && !type.includes('initiative') && !type.includes('capability');
+                        });
+                        
+                        featureTicketData[feature.key] = {
+                            allTickets: data.issues,
+                            belowEpic: belowEpic
+                        };
+                        
+                        totalBelowEpic += belowEpic.length;
+                        completed++;
+                    } else {
+                        console.error(`Failed to fetch tickets for ${feature.key}:`, data.error);
+                        completed++;
+                    }
+                } catch (err) {
+                    console.error(`Error fetching tickets for ${feature.key}:`, err);
+                    completed++;
+                }
+            }
+            
+            // Update the UI
+            buildFeatureDrillDown(currentIssues);
+            buildExecutiveSummary(currentIssues);
+            
+            fetchAllBtn.disabled = false;
+            fetchAllBtn.textContent = '🔍 Fetch All';
+            progressDiv.innerHTML = `✅ Completed! Fetched ${totalBelowEpic} tickets below epic level across ${features.length} features.`;
+            progressDiv.style.color = '#10b981';
+            
+            // Update total ticket count in summary
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Filter functions
+        function filterByType(type) {
+            document.getElementById('customJql').value = `issuetype = "${type}"`;
+            fetchAllData();
+            showDashboard();
+        }
+
+        function filterByPriority(priority) {
+            document.getElementById('customJql').value = `priority = "${priority}"`;
+            fetchAllData();
+            showDashboard();
+        }
 
         // API functions
         async function loadTableConfig() {
@@ -619,14 +1677,30 @@
             stats.style.display = 'none';
 
             try {
+                const storedToken = localStorage.getItem('jira_bearer_token');
+                if (!storedToken) {
+                    throw new Error('Please authenticate first. Click the Authenticate button.');
+                }
+                
                 const url = customJql ? `http://localhost:3001/api/fetch-all-data?jql=${encodeURIComponent(customJql)}&t=${Date.now()}` : `http://localhost:3001/api/fetch-all-data?t=${Date.now()}`;
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Jira-Token': storedToken
+                    }
+                });
                 const data = await response.json();
 
                 if (data.success) {
                     currentIssues = data.issues;
                     displayIssues(data.issues);
                     updateStats(data.issues);
+                    
+                    // Update executive view if visible
+                    const executiveView = document.getElementById('executiveView');
+                    if (executiveView && executiveView.style.display !== 'none') {
+                        buildExecutiveDashboard(data.issues);
+                    }
+                    
                     console.log('All data fetched successfully:', data.message);
                 } else {
                     throw new Error(data.error || 'Failed to fetch all data');
@@ -634,7 +1708,16 @@
             } catch (err) {
                 console.error('Error fetching all data:', err);
                 error.style.display = 'block';
-                document.getElementById('errorMessage').textContent = err.message;
+                let errorMsg = err.message || 'Failed to fetch data';
+                
+                // Provide helpful error messages
+                if (errorMsg.includes('authenticate') || errorMsg.includes('token')) {
+                    errorMsg += ' Please click the Authenticate button and enter your Bearer token.';
+                } else if (errorMsg.includes('HTTP 401') || errorMsg.includes('HTTP 403')) {
+                    errorMsg += ' Your token may be invalid or expired. Please re-authenticate.';
+                }
+                
+                document.getElementById('errorMessage').textContent = errorMsg;
             } finally {
                 loading.style.display = 'none';
             }
@@ -653,9 +1736,18 @@
             stats.style.display = 'none';
 
             try {
+                const storedToken = localStorage.getItem('jira_bearer_token');
+                if (!storedToken) {
+                    throw new Error('Please authenticate first. Click the Authenticate button.');
+                }
+                
                 const url = customJql ? `http://localhost:3001/api/refresh-columns?jql=${encodeURIComponent(customJql)}&t=${Date.now()}` : `http://localhost:3001/api/refresh-columns?t=${Date.now()}`;
                 console.log('Refreshing columns from:', url);
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Jira-Token': storedToken
+                    }
+                });
                 console.log('Refresh response status:', response.status);
                 
                 if (!response.ok) {
@@ -669,6 +1761,13 @@
                     currentIssues = data.issues;
                     displayIssues(data.issues);
                     updateStats(data.issues);
+                    
+                    // Update executive view if visible
+                    const executiveView = document.getElementById('executiveView');
+                    if (executiveView && executiveView.style.display !== 'none') {
+                        buildExecutiveDashboard(data.issues);
+                    }
+                    
                     console.log('Columns refreshed successfully:', data.message);
                 } else {
                     throw new Error(data.error || 'Failed to refresh columns');
@@ -676,7 +1775,16 @@
             } catch (err) {
                 console.error('Error refreshing columns:', err);
                 error.style.display = 'block';
-                document.getElementById('errorMessage').textContent = err.message;
+                let errorMsg = err.message || 'Failed to refresh data';
+                
+                // Provide helpful error messages
+                if (errorMsg.includes('authenticate') || errorMsg.includes('token')) {
+                    errorMsg += ' Please click the Authenticate button and enter your Bearer token.';
+                } else if (errorMsg.includes('HTTP 401') || errorMsg.includes('HTTP 403')) {
+                    errorMsg += ' Your token may be invalid or expired. Please re-authenticate.';
+                }
+                
+                document.getElementById('errorMessage').textContent = errorMsg;
             } finally {
                 loading.style.display = 'none';
             }
@@ -725,11 +1833,48 @@
                                     td.textContent = value;
                                 }
                                 break;
+                            case 'confluence':
+                                if (value) {
+                                    const confluenceLink = document.createElement('a');
+                                    confluenceLink.href = value;
+                                    confluenceLink.target = '_blank';
+                                    confluenceLink.textContent = column.key.toUpperCase();
+                                    confluenceLink.className = 'confluence-link';
+                                    confluenceLink.style.cssText = 'color: #3b82f6; text-decoration: none; padding: 4px 8px; border: 1px solid #3b82f6; border-radius: 4px; display: inline-block; font-size: 12px;';
+                                    confluenceLink.onclick = (e) => {
+                                        e.preventDefault();
+                                        showConfluenceSummary(value, column.key.toUpperCase(), issue.key);
+                                    };
+                                    td.appendChild(confluenceLink);
+                                } else {
+                                    td.textContent = '-';
+                                    td.style.color = '#999';
+                                }
+                                break;
                             case 'badge':
                                 const badge = document.createElement('span');
-                                badge.className = `status-badge status-${value.toLowerCase().replace(/\s+/g, '-')}`;
-                                badge.textContent = value;
+                                let badgeValue = '';
+                                if (!value || value === '') {
+                                    badgeValue = 'Unknown';
+                                } else if (typeof value === 'string') {
+                                    badgeValue = value;
+                                } else if (typeof value === 'object') {
+                                    badgeValue = value.name || value.displayName || value.toString() || 'Unknown';
+                                } else {
+                                    badgeValue = String(value);
+                                }
+                                badge.className = `status-badge status-${badgeValue.toLowerCase().replace(/\s+/g, '-')}`;
+                                badge.textContent = badgeValue;
                                 td.appendChild(badge);
+                                break;
+                            case 'labelCheck':
+                                // Display Yes/No with styling
+                                const labelCheck = document.createElement('span');
+                                labelCheck.textContent = value || 'No';
+                                labelCheck.style.cssText = value === 'Yes' 
+                                    ? 'color: #10b981; font-weight: 600;' 
+                                    : 'color: #6b7280;';
+                                td.appendChild(labelCheck);
                                 break;
                             case 'date':
                             case 'datetime':
@@ -825,31 +1970,586 @@
             });
         }
 
+        // Generate complex JQL query for feature/initiative
+        function generateFeatureJQL(featureKey) {
+            if (!featureKey || featureKey.trim() === '') {
+                throw new Error('Feature key is required');
+            }
+            
+            const key = featureKey.trim().toUpperCase();
+            
+            // Complex JQL query to find all related tickets (any type related to the feature/initiative)
+            const jql = `(
+                key = ${key} OR
+                "Parent Link" = ${key} OR
+                "FEAT ID" ~ ${key} OR
+                "FEAT Number" = ${key} OR
+                issueFunction in portfolioChildrenOf("key=${key}") OR
+                issueFunction in issuesInEpics("issueFunction in portfolioChildrenOf('key=${key}')") OR
+                issueFunction in subtasksOf("key=${key}") OR
+                issueFunction in subtasksOf("issueFunction in issuesInEpics(\"issueFunction in portfolioChildrenOf('key=${key}') \")")
+            )`;
+            
+            return jql;
+        }
+
+        // Fetch all tickets related to a feature/initiative
+        async function fetchFeatureTickets() {
+            const featureKey = document.getElementById('featureKey').value.trim();
+            
+            if (!featureKey) {
+                alert('Please enter a Feature/Initiative key (e.g., ERA-21110)');
+                return;
+            }
+            
+            try {
+                const jql = generateFeatureJQL(featureKey);
+                console.log('🔍 Generated JQL for feature:', jql);
+                
+                // Set the JQL in the input field
+                document.getElementById('customJql').value = jql;
+                
+                // Fetch the data
+                await fetchAllData();
+            } catch (err) {
+                console.error('Error generating feature JQL:', err);
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Fetch tickets for a specific feature (called from drill-down)
+        async function fetchFeatureTicketsFor(featureKey, fromExecutiveView = false) {
+            if (!featureKey) {
+                alert('Feature key is required');
+                return;
+            }
+            
+            try {
+                const jql = generateFeatureJQL(featureKey);
+                console.log('🔍 Generated JQL for feature:', jql);
+                
+                // Set the JQL in the input field
+                document.getElementById('customJql').value = jql;
+                
+                // Set the feature key in the feature selector
+                document.getElementById('featureKey').value = featureKey;
+                
+                // Highlight the feature chip if it exists
+                document.querySelectorAll('.feature-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                });
+                const featureChip = document.getElementById(`feature-chip-${featureKey}`);
+                if (featureChip) {
+                    featureChip.classList.add('active');
+                }
+                
+                // Fetch the data
+                await fetchAllData();
+                
+                // Switch back to dashboard view if coming from executive view
+                if (fromExecutiveView) {
+                    showDashboard();
+                }
+                
+                // Scroll to the table
+                setTimeout(() => {
+                    document.getElementById('issuesTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 500);
+            } catch (err) {
+                console.error('Error generating feature JQL:', err);
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function clearFeatureSearch() {
+            document.getElementById('featureKey').value = '';
+            document.getElementById('customJql').value = 'filter = 165194';
+            // Clear active chip highlight
+            document.querySelectorAll('.feature-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+        }
+
+        // Populate clickable features list
+        function populateFeaturesList(issues) {
+            const featuresListContainer = document.getElementById('featuresListContainer');
+            const featuresList = document.getElementById('featuresList');
+            
+            if (!featuresListContainer || !featuresList) return;
+            
+            // Get all features and initiatives
+            const features = issues.filter(issue => {
+                const type = (issue.issuetype || '').toLowerCase();
+                return type.includes('feature') || type.includes('initiative');
+            });
+            
+            if (features.length === 0) {
+                featuresListContainer.style.display = 'none';
+                return;
+            }
+            
+            featuresListContainer.style.display = 'block';
+            featuresList.innerHTML = '';
+            
+            features.forEach(feature => {
+                const chip = document.createElement('div');
+                chip.className = 'feature-chip';
+                chip.id = `feature-chip-${feature.key}`;
+                chip.onclick = () => drillDownToFeature(feature.key);
+                
+                const status = feature.status || 'Unknown';
+                const statusColor = status.toLowerCase() === 'done' || status.toLowerCase() === 'closed' ? '#10b981' : 
+                                   status.toLowerCase().includes('progress') ? '#3b82f6' : 
+                                   status.toLowerCase() === 'resolved' ? '#f59e0b' : '#6b7280';
+                
+                chip.innerHTML = `
+                    <span class="feature-key">${feature.key}</span>
+                    <span style="color: #666; font-size: 12px;">${(feature.summary || '').substring(0, 40)}${(feature.summary || '').length > 40 ? '...' : ''}</span>
+                    <span class="feature-status" style="background: ${statusColor}; color: white;">${status}</span>
+                `;
+                
+                featuresList.appendChild(chip);
+            });
+        }
+
+        // Drill down to a specific feature
+        async function drillDownToFeature(featureKey) {
+            await fetchFeatureTicketsFor(featureKey, false);
+        }
+
         function updateStats(issues) {
             const stats = document.getElementById('stats');
+            const insightsSection = document.getElementById('insightsSection');
             
             if (!Array.isArray(issues)) {
                 console.warn('updateStats: issues is not an array', issues);
                 issues = [];
             }
             
+            // Populate features list
+            populateFeaturesList(issues);
+            
             const totalIssues = issues.length;
-            const inProgressIssues = issues.filter(issue => issue.status && issue.status.toLowerCase().includes('progress')).length;
-            const doneIssues = issues.filter(issue => issue.status && issue.status.toLowerCase().includes('done')).length;
-            const todoIssues = issues.filter(issue => issue.status && issue.status.toLowerCase().includes('todo')).length;
+            
+            // Status categorization (BA/BI perspective)
+            const pendingVerification = issues.filter(issue => 
+                issue.status && issue.status.toLowerCase() === 'resolved'
+            ).length;
+            
+            const inProgressIssues = issues.filter(issue => 
+                issue.status && (
+                    issue.status.toLowerCase().includes('progress') || 
+                    issue.status.toLowerCase().includes('development') ||
+                    issue.status.toLowerCase().includes('review')
+                ) && issue.status.toLowerCase() !== 'resolved'
+            ).length;
+            
+            const doneIssues = issues.filter(issue => 
+                issue.status && (
+                    issue.status.toLowerCase().includes('done') || 
+                    issue.status.toLowerCase().includes('closed') ||
+                    issue.status.toLowerCase().includes('verified')
+                ) && issue.status.toLowerCase() !== 'resolved'
+            ).length;
+            
+            const todoIssues = issues.filter(issue => 
+                issue.status && (
+                    issue.status.toLowerCase().includes('todo') || 
+                    issue.status.toLowerCase().includes('backlog') ||
+                    issue.status.toLowerCase().includes('open')
+                )
+            ).length;
+            
+            const blockedIssues = issues.filter(issue => {
+                const status = issue.status ? issue.status.toLowerCase() : '';
+                const labels = issue.labels ? (Array.isArray(issue.labels) ? issue.labels.join(' ').toLowerCase() : issue.labels.toLowerCase()) : '';
+                return status.includes('blocked') || labels.includes('blocked');
+            }).length;
 
+            // Update stat cards
             document.getElementById('totalIssues').textContent = totalIssues;
+            document.getElementById('pendingVerification').textContent = pendingVerification;
             document.getElementById('inProgressIssues').textContent = inProgressIssues;
             document.getElementById('doneIssues').textContent = doneIssues;
             document.getElementById('todoIssues').textContent = todoIssues;
+            document.getElementById('blockedIssues').textContent = blockedIssues || 0;
 
             stats.style.display = 'grid';
+            
+            // Generate actionable insights
+            generateInsights(issues, {
+                total: totalIssues,
+                pendingVerification,
+                inProgress: inProgressIssues,
+                done: doneIssues,
+                todo: todoIssues,
+                blocked: blockedIssues
+            });
+            
+            insightsSection.style.display = 'block';
         }
 
+        // Generate actionable BA/BI insights
+        function generateInsights(issues, stats) {
+            const insightsContent = document.getElementById('insightsContent');
+            insightsContent.innerHTML = '';
+            
+            const insights = [];
+            
+            // Pending Verification Alert
+            if (stats.pendingVerification > 0) {
+                const pendingTickets = issues.filter(i => i.status && i.status.toLowerCase() === 'resolved');
+                insights.push({
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: `${stats.pendingVerification} Tickets Pending Verification`,
+                    message: `${stats.pendingVerification} ticket(s) are resolved and waiting for verification. These need immediate attention.`,
+                    action: `Review ${stats.pendingVerification} resolved ticket(s)`,
+                    tickets: pendingTickets
+                });
+            }
+            
+            // Blocked Tickets Alert
+            if (stats.blocked > 0) {
+                const blockedTickets = issues.filter(i => {
+                    const status = i.status ? i.status.toLowerCase() : '';
+                    const labels = i.labels ? (Array.isArray(i.labels) ? i.labels.join(' ').toLowerCase() : i.labels.toLowerCase()) : '';
+                    return status.includes('blocked') || labels.includes('blocked');
+                });
+                insights.push({
+                    type: 'critical',
+                    icon: '🚫',
+                    title: `${stats.blocked} Blocked Ticket(s)`,
+                    message: `${stats.blocked} ticket(s) are blocked and may be blocking other work.`,
+                    action: `Unblock ${stats.blocked} ticket(s)`,
+                    tickets: blockedTickets
+                });
+            }
+            
+            // Progress Health
+            const progressPercentage = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
+            if (progressPercentage < 50 && stats.total > 0) {
+                insights.push({
+                    type: 'info',
+                    icon: '📈',
+                    title: `Progress: ${progressPercentage}% Complete`,
+                    message: `Only ${progressPercentage}% of tickets are verified/closed. ${stats.inProgress} in progress, ${stats.todo} to do.`,
+                    action: 'Focus on completing in-progress tickets',
+                    tickets: []
+                });
+            }
+            
+            // High In-Progress Count
+            if (stats.inProgress > stats.total * 0.4 && stats.total > 0) {
+                insights.push({
+                    type: 'info',
+                    icon: '⚡',
+                    title: 'High Work-in-Progress',
+                    message: `${stats.inProgress} tickets (${Math.round((stats.inProgress/stats.total)*100)}%) are in progress. Consider focusing to complete some before starting new ones.`,
+                    action: 'Review WIP limits',
+                    tickets: []
+                });
+            }
+            
+            // No insights
+            if (insights.length === 0) {
+                insights.push({
+                    type: 'success',
+                    icon: '✅',
+                    title: 'All Good!',
+                    message: 'No immediate action items. All tickets are progressing well.',
+                    action: '',
+                    tickets: []
+                });
+            }
+            
+            // Display insights
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = 'insight-card';
+                insightCard.style.cssText = `
+                    background: ${insight.type === 'critical' ? '#fee2e2' : insight.type === 'warning' ? '#fef3c7' : insight.type === 'success' ? '#d1fae5' : '#dbeafe'};
+                    border-left: 4px solid ${insight.type === 'critical' ? '#dc2626' : insight.type === 'warning' ? '#f59e0b' : insight.type === 'success' ? '#10b981' : '#3b82f6'};
+                    padding: 15px;
+                    margin-bottom: 10px;
+                    border-radius: 4px;
+                `;
+                
+                insightCard.innerHTML = `
+                    <div style="display: flex; align-items: start; gap: 10px;">
+                        <span style="font-size: 24px;">${insight.icon}</span>
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0; font-weight: 600; font-size: 16px;">${insight.title}</h4>
+                            <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">${insight.message}</p>
+                            ${insight.action ? `<div style="font-size: 12px; color: #666; font-weight: 500;">💡 ${insight.action}</div>` : ''}
+                            ${insight.tickets && insight.tickets.length > 0 ? `
+                                <div style="margin-top: 10px; font-size: 12px;">
+                                    <strong>Affected Tickets:</strong> 
+                                    ${insight.tickets.slice(0, 5).map(t => `<a href="${t.url}" target="_blank" style="color: #3b82f6; margin-left: 5px;">${t.key}</a>`).join('')}
+                                    ${insight.tickets.length > 5 ? ` +${insight.tickets.length - 5} more` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                insightsContent.appendChild(insightCard);
+            });
+        }
+
+
+        // Authentication functions
+        function showAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.style.display = 'block';
+            
+            // Check if token is already stored
+            const storedToken = localStorage.getItem('jira_bearer_token');
+            if (storedToken) {
+                document.getElementById('authToken').value = '••••••••••••••••';
+                document.getElementById('authToken').disabled = true;
+                document.getElementById('authEmail').value = localStorage.getItem('jira_user_email') || '';
+            } else {
+                document.getElementById('authToken').value = '';
+                document.getElementById('authToken').disabled = false;
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authError').style.display = 'none';
+        }
+
+        // Confluence Summary Functions
+        let confluenceSummaries = {}; // Store summaries: { url: { summary, title, type } }
+
+        function showConfluenceSummary(url, type, issueKey) {
+            const modal = document.getElementById('confluenceModal');
+            const modalTitle = document.getElementById('confluenceModalTitle');
+            const modalContent = document.getElementById('confluenceModalContent');
+            const modalLink = document.getElementById('confluenceModalLink');
+            
+            modalTitle.textContent = `📄 ${type} Summary - ${issueKey}`;
+            modalLink.href = url;
+            modal.style.display = 'block';
+            
+            // Check if we already have the summary
+            if (confluenceSummaries[url] && confluenceSummaries[url].summary) {
+                displayConfluenceSummary(confluenceSummaries[url]);
+                return;
+            }
+            
+            // Fetch summary
+            modalContent.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading">Loading summary...</div></div>';
+            
+            fetchConfluenceSummary(url, type, issueKey);
+        }
+
+        async function fetchConfluenceSummary(url, type, issueKey) {
+            try {
+                const storedToken = localStorage.getItem('jira_bearer_token');
+                if (!storedToken) {
+                    throw new Error('Please authenticate first.');
+                }
+                
+                const response = await fetch(
+                    `http://localhost:3001/api/confluence/summary?url=${encodeURIComponent(url)}`,
+                    {
+                        headers: {
+                            'X-Confluence-Token': storedToken
+                        }
+                    }
+                );
+                
+                const data = await response.json();
+                
+                if (data.success && data.summary) {
+                    confluenceSummaries[url] = {
+                        summary: data.summary,
+                        title: data.title || 'Confluence Page',
+                        type: type
+                    };
+                    displayConfluenceSummary(confluenceSummaries[url]);
+                } else {
+                    throw new Error(data.error || 'Failed to fetch summary');
+                }
+            } catch (err) {
+                console.error('Error fetching Confluence summary:', err);
+                const modalContent = document.getElementById('confluenceModalContent');
+                modalContent.innerHTML = `
+                    <div style="padding: 20px; color: #dc2626;">
+                        <p><strong>Error:</strong> ${err.message}</p>
+                        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                            Make sure you have provided your Confluence PAT token. 
+                            The token should be stored in <code>confluence-key-private.txt</code> or passed via header.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayConfluenceSummary(data) {
+            const modalContent = document.getElementById('confluenceModalContent');
+            modalContent.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 18px; margin-bottom: 10px;">${data.title}</h3>
+                    <div style="background: #f8f8f8; padding: 15px; border-radius: 4px; border-left: 4px solid #3b82f6;">
+                        <p style="line-height: 1.6; color: #333; white-space: pre-wrap;">${data.summary}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeConfluenceModal() {
+            document.getElementById('confluenceModal').style.display = 'none';
+        }
+
+        // Fetch all Confluence summaries for executive view
+        async function fetchAllConfluenceSummaries(issues) {
+            const cgUrls = [];
+            const pgUrls = [];
+            
+            issues.forEach(issue => {
+                if (issue.cg) cgUrls.push(issue.cg);
+                if (issue.pg) pgUrls.push(issue.pg);
+            });
+            
+            const allUrls = [...new Set([...cgUrls, ...pgUrls])];
+            
+            if (allUrls.length === 0) {
+                return {};
+            }
+            
+            try {
+                const storedToken = localStorage.getItem('jira_bearer_token');
+                if (!storedToken) {
+                    console.warn('No token available for Confluence summaries');
+                    return {};
+                }
+                
+                const response = await fetch('http://localhost:3001/api/confluence/summaries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Confluence-Token': storedToken
+                    },
+                    body: JSON.stringify({ urls: allUrls })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.summaries) {
+                    // Store summaries
+                    Object.assign(confluenceSummaries, data.summaries);
+                    return data.summaries;
+                }
+            } catch (err) {
+                console.error('Error fetching all Confluence summaries:', err);
+            }
+            
+            return {};
+        }
+
+        async function authenticateToken() {
+            const token = document.getElementById('authToken').value.trim();
+            const email = document.getElementById('authEmail').value.trim();
+            const errorDiv = document.getElementById('authError');
+            
+            if (!token || token === '••••••••••••••••') {
+                errorDiv.textContent = 'Please enter a valid token';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            
+            try {
+                console.log('🔐 Testing token authentication...');
+                
+                // Test the token with PAT endpoint
+                const testResponse = await fetch('http://localhost:3001/api/test-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token, email: email })
+                });
+                
+                const testData = await testResponse.json();
+                
+                if (testData.success) {
+                    // Store token in localStorage
+                    localStorage.setItem('jira_bearer_token', token);
+                    if (email) {
+                        localStorage.setItem('jira_user_email', email);
+                    }
+                    
+                    // Update UI
+                    document.getElementById('authButton').textContent = '✅ Authenticated';
+                    document.getElementById('authButton').style.background = '#10b981';
+                    document.getElementById('authButton').onclick = function() {
+                        if (confirm('You are already authenticated. Do you want to change your token?')) {
+                            localStorage.removeItem('jira_bearer_token');
+                            localStorage.removeItem('jira_user_email');
+                            showAuthModal();
+                        }
+                    };
+                    
+                    closeAuthModal();
+                    
+                    // Try to fetch data
+                    await refreshColumns();
+                } else {
+                    throw new Error(testData.error || 'Token validation failed');
+                }
+            } catch (err) {
+                console.error('Authentication error:', err);
+                let errorMsg = err.message || 'Authentication failed';
+                
+                // Provide specific error guidance
+                if (errorMsg.includes('401') || errorMsg.includes('403') || errorMsg.includes('Invalid')) {
+                    errorMsg = 'Invalid token. Please check that you copied the complete Bearer token (PAT) from Jira.';
+                } else if (errorMsg.includes('404') || errorMsg.includes('network') || errorMsg.includes('fetch')) {
+                    errorMsg = 'Network error. Please check your connection and try again.';
+                } else if (errorMsg.includes('timeout')) {
+                    errorMsg = 'Request timed out. Please try again.';
+                }
+                
+                errorDiv.textContent = errorMsg;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Check authentication status on load
+        function checkAuthStatus() {
+            const storedToken = localStorage.getItem('jira_bearer_token');
+            if (storedToken) {
+                document.getElementById('authButton').textContent = '✅ Authenticated';
+                document.getElementById('authButton').style.background = '#10b981';
+                document.getElementById('authButton').onclick = function() {
+                    if (confirm('You are already authenticated. Do you want to change your token?')) {
+                        localStorage.removeItem('jira_bearer_token');
+                        localStorage.removeItem('jira_user_email');
+                        showAuthModal();
+                    }
+                };
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('authModal');
+            if (event.target === modal) {
+                closeAuthModal();
+            }
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing application...');
+            
+            // Check authentication status
+            checkAuthStatus();
             
             // Add a small delay to ensure server is ready
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -860,8 +2560,14 @@
             console.log('Creating table header...');
             createTableHeader();
             
-            console.log('Refreshing columns...');
-            await refreshColumns();
+            // Only refresh if authenticated
+            const storedToken = localStorage.getItem('jira_bearer_token');
+            if (storedToken) {
+                console.log('Refreshing columns...');
+                await refreshColumns();
+            } else {
+                console.log('Not authenticated. Please click Authenticate button.');
+            }
             
             console.log('Application initialized successfully');
         });
@@ -870,4 +2576,5 @@
         setInterval(refreshColumns, 5 * 60 * 1000);
     </script>
 </body>
+</html>
 </html>

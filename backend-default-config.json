@@ -65,6 +65,41 @@
       "isEditable": false
     },
     {
+      "key": "fixVersions",
+      "label": "Fix Version",
+      "type": "text",
+      "jiraField": "fixVersions",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "ndb_2_11_wishlist",
+      "label": "2.11 Wishlist",
+      "type": "labelCheck",
+      "jiraField": "labels",
+      "labelToCheck": "ndb-2.11-wishlist",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "cg",
+      "label": "CG Page",
+      "type": "confluence",
+      "jiraField": "customfield_10000",
+      "isDefault": true,
+      "isEditable": false,
+      "note": "Update customfield_10000 with actual CG custom field ID from your Jira instance"
+    },
+    {
+      "key": "pg",
+      "label": "PG Page",
+      "type": "confluence",
+      "jiraField": "customfield_10001",
+      "isDefault": true,
+      "isEditable": false,
+      "note": "Update customfield_10001 with actual PG custom field ID from your Jira instance"
+    },
+    {
       "key": "customfield_35863",
       "label": "PRFAQ / One-Pager",
       "type": "text",

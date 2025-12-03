@@ -31,12 +31,13 @@ class JiraClient {
     console.log('✅ JiraClient configuration validated');
   }
 
-  async fetchAllData(jql = null) {
+  async fetchAllData(jql = null, userToken = null) {
     try {
       const query = jql || this.jiraConfig.jql;
+      const tokenToUse = userToken || this.pat;
       console.log('🔄 [fetchAllData] Starting fetch with JQL:', query);
       console.log('🔄 [fetchAllData] Base URL:', this.baseUrl);
-      console.log('🔄 [fetchAllData] PAT token present:', !!this.pat);
+      console.log('🔄 [fetchAllData] Using token:', userToken ? 'User-provided' : 'Config');
       
       let fields = this.configManager.config.allPossibleFields;
       if (!fields || fields.length === 0) {
@@ -46,12 +47,12 @@ class JiraClient {
       }
       console.log(`📊 [fetchAllData] Using ${fields.length} fields for comprehensive data fetch`);
       
-      const response = await this.makeJiraRequest(query, fields);
+      const response = await this.makeJiraRequest(query, fields, tokenToUse);
       
-      // Check if response is HTML (SAML redirect)
+      // Check if response is HTML (redirect to login)
       if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
-        console.error('❌ [fetchAllData] Received HTML response - SAML authentication required');
-        throw new Error('SAML authentication required. Please authenticate through your browser first.');
+        console.error('❌ [fetchAllData] Received HTML response - Bearer token not accepted for this endpoint');
+        throw new Error('Bearer token authentication failed. The token works for PAT management but not for search API. Please check if your Jira instance requires a different authentication method for API v3 endpoints.');
       }
       
       const issueCount = response.data.issues?.length || 0;
@@ -76,12 +77,13 @@ class JiraClient {
     }
   }
 
-  async refreshColumns(jql = null) {
+  async refreshColumns(jql = null, userToken = null) {
     try {
       const query = jql || this.jiraConfig.jql;
+      const tokenToUse = userToken || this.pat;
       console.log('🔄 [refreshColumns] Starting refresh with JQL:', query);
       console.log('🔄 [refreshColumns] Base URL:', this.baseUrl);
-      console.log('🔄 [refreshColumns] PAT token present:', !!this.pat);
+      console.log('🔄 [refreshColumns] Using token:', userToken ? 'User-provided' : 'Config');
       
       // Use only backend configuration - no user configuration
       let backendConfig;
@@ -102,12 +104,12 @@ class JiraClient {
         fields = ['key', 'summary', 'status'];
       }
       
-      const response = await this.makeJiraRequest(query, fields);
+      const response = await this.makeJiraRequest(query, fields, tokenToUse);
       
-      // Check if response is HTML (SAML redirect)
+      // Check if response is HTML (redirect to login)
       if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
-        console.error('❌ [refreshColumns] Received HTML response - SAML authentication required');
-        throw new Error('SAML authentication required. Please authenticate through your browser first.');
+        console.error('❌ [refreshColumns] Received HTML response - Bearer token not accepted for this endpoint');
+        throw new Error('Bearer token authentication failed. The token works for PAT management but not for search API. Please check if your Jira instance requires a different authentication method for API v3 endpoints.');
       }
       
       const issueCount = response.data.issues?.length || 0;
@@ -150,18 +152,29 @@ class JiraClient {
     return response.data;
   }
 
-  async makeJiraRequest(jql, fields) {
+  async makeJiraRequest(jql, fields, token = null) {
+    const tokenToUse = token || this.pat;
+    const cleanBaseUrl = this.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    const searchUrl = `${cleanBaseUrl}/rest/api/2/search`;
+    
     console.log('🔐 [makeJiraRequest] Attempting Jira request...');
     console.log('🔐 [makeJiraRequest] JQL:', jql);
     console.log('🔐 [makeJiraRequest] Fields count:', fields?.length || 0);
-    console.log('🔐 [makeJiraRequest] Request URL:', `${this.baseUrl}/rest/api/3/search`);
+    console.log('🔐 [makeJiraRequest] Request URL:', searchUrl);
+    console.log('🔐 [makeJiraRequest] Using token:', token ? 'User-provided' : 'Config');
     
-    // Try different authentication methods
+    // Try different authentication methods - Bearer Token first (most reliable for API v2)
     const authMethods = [
-      { name: 'Bearer Token', method: () => this.tryBearerTokenRequest(jql, fields) },
-      { name: 'Basic Auth', method: () => this.tryBasicAuthRequest(jql, fields) },
-      { name: 'OAuth 2.0', method: () => this.tryOAuthRequest(jql, fields) }
+      { name: 'Bearer Token (API v2)', method: () => this.tryBearerTokenRequest(jql, fields, tokenToUse) }
     ];
+    
+    // Only try other methods if Bearer token is not provided
+    if (!tokenToUse) {
+      authMethods.push(
+        { name: 'PAT Token Header', method: () => this.tryPATTokenRequest(jql, fields, tokenToUse) },
+        { name: 'Basic Auth', method: () => this.tryBasicAuthRequest(jql, fields) }
+      );
+    }
 
     const errors = [];
     for (const authMethod of authMethods) {
@@ -190,6 +203,69 @@ class JiraClient {
     throw new Error(`All authentication methods failed. Last error: ${errors[errors.length - 1]?.message || 'Unknown error'}`);
   }
 
+  async tryPATTokenRequest(jql, fields) {
+    const cleanToken = this.pat.trim().replace(/\r?\n/g, '');
+    console.log('🔐 [tryPATTokenRequest] Trying PAT token with alternative header formats...');
+    
+    // Try different header formats for PAT token
+    const headerFormats = [
+      { name: 'X-API-Token', header: `X-API-Token: ${cleanToken}` },
+      { name: 'X-Auth-Token', header: `X-Auth-Token: ${cleanToken}` },
+      { name: 'Authorization Token', header: `Authorization: Token ${cleanToken}` },
+      { name: 'Authorization PAT', header: `Authorization: PAT ${cleanToken}` }
+    ];
+    
+    for (const format of headerFormats) {
+      try {
+        console.log(`🔐 [tryPATTokenRequest] Trying ${format.name}...`);
+        const headers = {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        };
+        
+        // Parse the header format
+        const [headerName, headerValue] = format.header.split(': ');
+        headers[headerName] = headerValue;
+        
+        const cleanBaseUrl = this.baseUrl.replace(/\/$/, '');
+        const response = await axios.post(
+          `${cleanBaseUrl}/rest/api/2/search`,
+          {
+            jql: jql,
+            maxResults: 100,
+            fields: fields
+          },
+          {
+            headers: headers,
+            validateStatus: function (status) {
+              return status >= 200 && status < 600;
+            },
+            timeout: 30000
+          }
+        );
+        
+        if (response.status === 200) {
+          console.log(`✅ [tryPATTokenRequest] Success with ${format.name}`);
+          return response;
+        }
+        
+        // Check if response is HTML redirect
+        if (response.status === 302 || (typeof response.data === 'string' && response.data.includes('<!DOCTYPE'))) {
+          console.log(`⚠️ [tryPATTokenRequest] ${format.name} resulted in redirect, trying next...`);
+          continue;
+        }
+      } catch (error) {
+        console.log(`⚠️ [tryPATTokenRequest] ${format.name} failed: ${error.message}`);
+        if (format === headerFormats[headerFormats.length - 1]) {
+          throw error;
+        }
+        continue;
+      }
+    }
+    
+    throw new Error('All PAT token header formats failed');
+  }
+
   async tryOAuthRequest(jql, fields) {
     // OAuth 2.0 implementation would go here
     // This requires OAuth client credentials from JIRA admin
@@ -197,34 +273,81 @@ class JiraClient {
   }
 
   async tryBasicAuthRequest(jql, fields) {
+    const cleanToken = this.pat.trim().replace(/\r?\n/g, '');
     const username = this.jiraConfig.username || 'namratha.singh';
-    const auth = Buffer.from(`${username}:${this.pat.trim().replace(/\r?\n/g, '')}`).toString('base64');
     
-    return await axios.post(
-      `${this.baseUrl}/rest/api/3/search`,
-      {
-        jql: jql,
-        maxResults: 100,
-        fields: fields
-      },
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${auth}`
+    // Try different username formats
+    const usernameFormats = [
+      username,  // Just username
+      `${username}@nutanix.com`,  // With domain
+      username.includes('@') ? username : `${username}@nutanix.com`  // Smart format
+    ];
+    
+    for (const userFormat of usernameFormats) {
+      try {
+        console.log(`🔐 [tryBasicAuthRequest] Trying username format: ${userFormat}`);
+        const auth = Buffer.from(`${userFormat}:${cleanToken}`).toString('base64');
+        
+        const cleanBaseUrl = this.baseUrl.replace(/\/$/, '');
+        const response = await axios.post(
+          `${cleanBaseUrl}/rest/api/2/search`,
+          {
+            jql: jql,
+            maxResults: 100,
+            fields: fields
+          },
+          {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${auth}`
+            },
+            validateStatus: function (status) {
+              return status >= 200 && status < 600;
+            }
+          }
+        );
+        
+        if (response.status === 200) {
+          console.log(`✅ [tryBasicAuthRequest] Success with username format: ${userFormat}`);
+          return response;
+        }
+        
+        if (response.status === 403 && response.data?.message?.includes('Basic Authentication has been disabled')) {
+          console.log(`⚠️ [tryBasicAuthRequest] Basic Auth disabled, trying next format...`);
+          continue;
+        }
+        
+        // If we get here, it's a different error
+        throw new Error(`HTTP ${response.status}: ${response.data?.message || response.statusText}`);
+      } catch (error) {
+        if (error.response?.status === 403 && error.response?.data?.message?.includes('Basic Authentication has been disabled')) {
+          console.log(`⚠️ [tryBasicAuthRequest] Basic Auth disabled for ${userFormat}, trying next...`);
+          continue;
+        }
+        // If it's the last format, throw the error
+        if (userFormat === usernameFormats[usernameFormats.length - 1]) {
+          throw error;
         }
       }
-    );
+    }
+    
+    throw new Error('Basic Authentication has been disabled on this instance');
   }
 
-  async tryBearerTokenRequest(jql, fields) {
+  async tryBearerTokenRequest(jql, fields, token = null) {
     try {
-      const cleanToken = this.pat.trim().replace(/\r?\n/g, '');
+      const tokenToUse = token || this.pat;
+      const cleanToken = tokenToUse.trim().replace(/\r?\n/g, '');
+      const cleanBaseUrl = this.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+      const searchUrl = `${cleanBaseUrl}/rest/api/2/search`;
+      
       console.log('🔐 [tryBearerTokenRequest] Token length:', cleanToken.length);
       console.log('🔐 [tryBearerTokenRequest] Token starts with:', cleanToken.substring(0, 10) + '...');
+      console.log('🔐 [tryBearerTokenRequest] Request URL:', searchUrl);
       
       const response = await axios.post(
-        `${this.baseUrl}/rest/api/3/search`,
+        searchUrl,
         {
           jql: jql,
           maxResults: 100,
@@ -236,18 +359,85 @@ class JiraClient {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${cleanToken}`
           },
-          timeout: 30000 // 30 second timeout
+          timeout: 30000, // 30 second timeout
+          validateStatus: function (status) {
+            // Don't throw error for any status, we'll handle it
+            return status >= 200 && status < 600;
+          }
         }
       );
+      
+      // Check if response is HTML (SAML redirect)
+      const contentType = response.headers['content-type'] || '';
+      const responseData = response.data;
+      
+      console.log('📋 [tryBearerTokenRequest] Response status:', response.status);
+      console.log('📋 [tryBearerTokenRequest] Content-Type:', contentType);
+      console.log('📋 [tryBearerTokenRequest] Response data type:', typeof responseData);
+      
+      if (response.status !== 200) {
+        console.error('❌ [tryBearerTokenRequest] Non-200 status:', response.status);
+        
+        // Handle specific error cases
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('Authentication failed. Please check your Bearer token (PAT) is valid and has not expired.');
+        }
+        
+        if (response.status === 302) {
+          throw new Error('Authentication redirect detected. Please verify your Bearer token is correct.');
+        }
+        
+        if (typeof responseData === 'string' && (responseData.includes('<!DOCTYPE') || responseData.includes('<html'))) {
+          console.error('❌ [tryBearerTokenRequest] Received HTML response');
+          throw new Error('Received HTML instead of JSON. Please check your Bearer token is valid.');
+        }
+        
+        // Check for Jira error messages
+        if (responseData && typeof responseData === 'object' && responseData.errorMessages) {
+          throw new Error(`Jira API error: ${responseData.errorMessages.join('; ')}`);
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${response.statusText || 'Unknown error'}`);
+      }
+      
+      if (contentType.includes('text/html') || (typeof responseData === 'string' && responseData.includes('<!DOCTYPE'))) {
+        console.error('❌ [tryBearerTokenRequest] Response is HTML, not JSON');
+        throw new Error('Received HTML response instead of JSON. Please verify your Bearer token.');
+      }
+      
+      if (!responseData || typeof responseData !== 'object') {
+        console.error('❌ [tryBearerTokenRequest] Invalid response data type:', typeof responseData);
+        throw new Error('Invalid response format from Jira API. Expected JSON but got: ' + typeof responseData);
+      }
+      
+      // Validate response structure
+      if (!responseData.issues && !Array.isArray(responseData.issues)) {
+        console.warn('⚠️ [tryBearerTokenRequest] Response missing issues array');
+      }
       
       console.log('✅ [tryBearerTokenRequest] Request successful');
       return response;
     } catch (error) {
+      const errorData = error.response?.data;
+      let dataPreview = 'N/A';
+      if (errorData) {
+        if (typeof errorData === 'string') {
+          dataPreview = errorData.substring(0, 200);
+        } else {
+          try {
+            dataPreview = JSON.stringify(errorData).substring(0, 200);
+          } catch (e) {
+            dataPreview = String(errorData).substring(0, 200);
+          }
+        }
+      }
+      
       console.error('❌ [tryBearerTokenRequest] Request failed:', {
         message: error.message,
         status: error.response?.status,
         statusText: error.response?.statusText,
-        data: error.response?.data
+        contentType: error.response?.headers?.['content-type'],
+        dataPreview: dataPreview
       });
       throw error;
     }
@@ -259,8 +449,9 @@ class JiraClient {
         throw new Error('Issue key is required');
       }
 
+      const cleanBaseUrl = this.baseUrl.replace(/\/$/, '');
       const response = await axios.get(
-        `${this.baseUrl}/rest/api/3/issue/${issueKey}`,
+        `${cleanBaseUrl}/rest/api/2/issue/${issueKey}`,
         {
           headers: {
             'Accept': 'application/json',
@@ -286,9 +477,10 @@ class JiraClient {
     const backendConfig = this.configManager.getBackendConfig();
     const columns = backendConfig.defaultColumns || [];
     
+    const cleanBaseUrl = this.baseUrl.replace(/\/$/, '');
     return issues.map(issue => {
       const formattedIssue = {
-        url: `${this.baseUrl}/browse/${issue.key}`,
+        url: `${cleanBaseUrl}/browse/${issue.key}`,
         key: issue.key || ''
       };
       
@@ -296,7 +488,13 @@ class JiraClient {
       columns.forEach(column => {
         if (column && column.jiraField && column.key) {
           const fieldValue = this.getFieldValue(issue, column.jiraField);
-          formattedIssue[column.key] = this.formatFieldValue(fieldValue, column.type);
+          
+          // Special handling for labelCheck type
+          if (column.type === 'labelCheck' && column.labelToCheck) {
+            formattedIssue[column.key] = this.checkLabel(fieldValue, column.labelToCheck);
+          } else {
+            formattedIssue[column.key] = this.formatFieldValue(fieldValue, column.type);
+          }
         }
       });
       
@@ -340,6 +538,15 @@ class JiraClient {
     switch (type) {
       case 'link':
         return value;
+      case 'confluence':
+        // Handle different URL formats from Jira
+        if (typeof value === 'string' && value.startsWith('http')) {
+          return value;
+        }
+        if (typeof value === 'object') {
+          return value.url || value.value || value.href || value.toString();
+        }
+        return value.toString();
       case 'badge':
         return typeof value === 'object' ? (value.name || value.displayName || value.toString()) : value.toString();
       case 'date':
@@ -348,11 +555,36 @@ class JiraClient {
         return new Date(value).toLocaleString();
       case 'text':
       default:
+        // Handle arrays (like fixVersions)
+        if (Array.isArray(value)) {
+          if (value.length === 0) return '';
+          // If array of objects, extract names
+          if (typeof value[0] === 'object') {
+            return value.map(item => item.name || item.toString()).join(', ');
+          }
+          return value.join(', ');
+        }
         if (typeof value === 'object') {
           return value.displayName || value.name || value.toString();
         }
         return value.toString();
     }
+  }
+
+  // Check if a specific label exists in the labels array
+  checkLabel(labels, labelToCheck) {
+    if (!labels) return 'No';
+    if (Array.isArray(labels)) {
+      return labels.some(label => {
+        const labelStr = typeof label === 'string' ? label : (label.name || label.toString());
+        return labelStr.toLowerCase() === labelToCheck.toLowerCase();
+      }) ? 'Yes' : 'No';
+    }
+    // If labels is a string, check directly
+    if (typeof labels === 'string') {
+      return labels.toLowerCase().includes(labelToCheck.toLowerCase()) ? 'Yes' : 'No';
+    }
+    return 'No';
   }
 
   getTableConfig() {

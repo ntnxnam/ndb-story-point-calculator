@@ -109,6 +109,39 @@ class ConfigManager {
         jiraField: 'status.name',
         isDefault: true,
         isEditable: false
+      },
+      {
+        key: 'fixVersions',
+        label: 'Fix Version',
+        type: 'text',
+        jiraField: 'fixVersions',
+        isDefault: true,
+        isEditable: false
+      },
+      {
+        key: 'ndb_2_11_wishlist',
+        label: '2.11 Wishlist',
+        type: 'labelCheck',
+        jiraField: 'labels',
+        labelToCheck: 'ndb-2.11-wishlist',
+        isDefault: true,
+        isEditable: false
+      },
+      {
+        key: 'cg',
+        label: 'CG Page',
+        type: 'confluence',
+        jiraField: 'customfield_10000', // TODO: Update with actual CG custom field ID
+        isDefault: true,
+        isEditable: false
+      },
+      {
+        key: 'pg',
+        label: 'PG Page',
+        type: 'confluence',
+        jiraField: 'customfield_10001', // TODO: Update with actual PG custom field ID
+        isDefault: true,
+        isEditable: false
       }
     ];
   }
