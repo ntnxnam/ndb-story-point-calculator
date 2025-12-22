@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NDB Weekly Status</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -828,6 +829,347 @@
                 grid-template-columns: 1fr !important;
             }
         }
+
+        /* Feature Metrics Modal */
+        .feature-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .feature-modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .feature-modal-content {
+            background-color: #ffffff;
+            margin: 20px auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 95%;
+            max-width: 1400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .feature-modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .feature-modal-close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .feature-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-modal-body {
+            padding: 30px;
+        }
+
+        .metrics-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .metrics-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .metrics-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .metrics-tab:hover {
+            color: #667eea;
+        }
+
+        .metrics-tab-content {
+            display: none;
+        }
+
+        .metrics-tab-content.active {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .metric-card h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .metric-chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 10px;
+        }
+
+        .metric-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-summary-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .metric-summary-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .metric-summary-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeline-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .timeline-table th,
+        .timeline-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .timeline-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeline-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .story-point-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #667eea;
+            color: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-badge.todo { background: #e5e5e5; color: #333; }
+        .status-badge.in-progress { background: #3b82f6; color: white; }
+        .status-badge.done { background: #10b981; color: white; }
+        .status-badge.blocked { background: #ef4444; color: white; }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .priority-badge.critical,
+        .priority-badge.highest,
+        .priority-badge.blocker { background: #ef4444; color: white; }
+        .priority-badge.high,
+        .priority-badge.major { background: #f59e0b; color: white; }
+        .priority-badge.medium,
+        .priority-badge.normal { background: #3b82f6; color: white; }
+        .priority-badge.low,
+        .priority-badge.minor { background: #10b981; color: white; }
+        .priority-badge.lowest,
+        .priority-badge.trivial { background: #e5e5e5; color: #333; }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        /* Kick Off Epic Due Dates */
+        .kickoff-epic-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .kickoff-epic-section h3 {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .due-dates-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .due-date-group {
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+        }
+
+        .due-date-group.overdue {
+            border-left: 4px solid #ef4444;
+        }
+
+        .due-date-group.today {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .due-date-group.upcoming {
+            border-left: 4px solid #10b981;
+        }
+
+        .due-date-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .due-date-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .due-date-count {
+            font-size: 12px;
+            color: #666;
+            background: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .due-date-tasks {
+            padding: 10px 15px;
+        }
+
+        .due-date-task {
+            display: grid;
+            grid-template-columns: 100px 1fr auto auto;
+            gap: 15px;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .due-date-task:last-child {
+            border-bottom: none;
+        }
+
+        .task-key a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .task-key a:hover {
+            text-decoration: underline;
+        }
+
+        .task-summary {
+            font-size: 13px;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .task-assignee {
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -842,7 +1184,6 @@
             <a href="#" class="nav-item" onclick="showExecutiveView()">📊 Executive View</a>
             <a href="config.html" class="nav-item">Configure Columns</a>
             <a href="#" class="nav-item" onclick="fetchAllData()">Fetch All Data</a>
-            <a href="#" class="nav-item" onclick="refreshColumns()">Refresh Columns</a>
         </nav>
     </div>
 
@@ -860,7 +1201,6 @@
             </button>
             <h1 class="header-title">NDB Weekly Status</h1>
             <div class="header-actions">
-                <button class="btn" onclick="refreshColumns()">Refresh</button>
             </div>
         </header>
 
@@ -877,9 +1217,11 @@
                     🔐 Test Confluence
                 </button>
                 <button class="btn primary" onclick="fetchAllData()">Fetch Data</button>
-                <button class="btn" onclick="refreshColumns()">Refresh Columns</button>
                 <a href="config.html" class="btn">Configure Columns</a>
             </div>
+
+            <!-- Executive Summary Cards -->
+            <div id="executiveSummary" class="executive-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; display: none;"></div>
 
             <!-- Dynamic Status Stats - will be populated with actual statuses -->
             <div class="stats" id="stats" style="display: none;"></div>
@@ -1056,59 +1398,98 @@
         // Build Executive Summary Cards
         function buildExecutiveSummary(issues) {
             const summaryContainer = document.getElementById('executiveSummary');
-            summaryContainer.innerHTML = '';
-            
-            // Calculate total from all feature tickets (below epic level) if available
-            let allTicketsBelowEpic = [];
-            let totalBelowEpic = 0;
-            
-            if (Object.keys(featureTicketData).length > 0) {
-                // Aggregate all tickets below epic level from all features
-                Object.values(featureTicketData).forEach(data => {
-                    if (data.belowEpic) {
-                        allTicketsBelowEpic = allTicketsBelowEpic.concat(data.belowEpic);
-                    }
-                });
-                totalBelowEpic = allTicketsBelowEpic.length;
+            if (!summaryContainer) {
+                // Create summary container if it doesn't exist
+                const insightsSection = document.getElementById('insightsSection');
+                if (insightsSection && insightsSection.parentNode) {
+                    const newSummaryContainer = document.createElement('div');
+                    newSummaryContainer.id = 'executiveSummary';
+                    newSummaryContainer.className = 'executive-summary';
+                    newSummaryContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;';
+                    insightsSection.parentNode.insertBefore(newSummaryContainer, insightsSection);
+                } else {
+                    return; // Can't create summary without container
+                }
             }
             
-            // Use the aggregated tickets if available, otherwise use current issues
-            const ticketsToAnalyze = totalBelowEpic > 0 ? allTicketsBelowEpic : issues;
-            const total = totalBelowEpic > 0 ? totalBelowEpic : issues.length;
+            summaryContainer.innerHTML = '';
             
-            const pendingVerification = ticketsToAnalyze.filter(i => i.status && i.status.toLowerCase() === 'resolved').length;
-            const inProgress = ticketsToAnalyze.filter(i => 
-                i.status && (
-                    i.status.toLowerCase().includes('progress') || 
-                    i.status.toLowerCase().includes('development')
-                ) && i.status.toLowerCase() !== 'resolved'
-            ).length;
-            const done = ticketsToAnalyze.filter(i => 
-                i.status && (
-                    i.status.toLowerCase().includes('done') || 
-                    i.status.toLowerCase().includes('closed')
-                ) && i.status.toLowerCase() !== 'resolved'
-            ).length;
+            // Calculate story points metrics
+            let totalStoryPoints = 0;
+            let completedStoryPoints = 0;
+            let remainingStoryPoints = 0;
             
-            const features = issues.filter(i => {
-                const type = i.issuetype ? i.issuetype.toLowerCase() : '';
-                return type.includes('feature') || type.includes('initiative');
-            }).length;
+            // Calculate risk and overdue counts
+            let atRiskCount = 0;
+            let overdueCount = 0;
+            let unassignedCount = 0;
             
-            const bugs = ticketsToAnalyze.filter(i => {
-                const type = i.issuetype ? i.issuetype.toLowerCase() : '';
-                return type.includes('bug');
-            }).length;
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
             
-            const completionRate = total > 0 ? Math.round((done / total) * 100) : 0;
+            issues.forEach(issue => {
+                // Story points
+                const sp = parseFloat(issue.customfield_10002 || issue.storyPoints || 0);
+                totalStoryPoints += sp;
+                
+                const status = (issue.status?.name || issue.status || '').toLowerCase();
+                const isResolved = status.includes('done') || status.includes('closed') || status.includes('resolved');
+                
+                if (isResolved) {
+                    completedStoryPoints += sp;
+                } else {
+                    remainingStoryPoints += sp;
+                }
+                
+                // Risk indicator
+                const riskIndicator = (issue.customfield_23560 || '').toLowerCase();
+                if (riskIndicator.includes('at risk') || riskIndicator.includes('risk')) {
+                    atRiskCount++;
+                }
+                
+                // Overdue items
+                if (issue.duedate) {
+                    const dueDate = new Date(issue.duedate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate < now && !isResolved) {
+                        overdueCount++;
+                    }
+                }
+                
+                // Unassigned
+                if (!issue.assignee || issue.assignee === '-' || issue.assignee === 'Unassigned') {
+                    unassignedCount++;
+                }
+            });
+            
+            const progressPercent = totalStoryPoints > 0 ? Math.round((completedStoryPoints / totalStoryPoints) * 100) : 0;
             
             const summaryCards = [
-                { label: 'Total Tickets', value: total, color: '#667eea' },
-                { label: 'Features/Initiatives', value: features, color: '#764ba2' },
-                { label: 'Bugs', value: bugs, color: '#ef4444' },
-                { label: 'In Progress', value: inProgress, color: '#3b82f6' },
-                { label: 'Pending Verification', value: pendingVerification, color: '#f59e0b' },
-                { label: 'Completion Rate', value: `${completionRate}%`, color: '#10b981' }
+                { 
+                    label: 'Total Story Points', 
+                    value: `${totalStoryPoints} (Done: ${completedStoryPoints}, Remaining: ${remainingStoryPoints})`, 
+                    color: '#667eea' 
+                },
+                { 
+                    label: 'Progress', 
+                    value: `${progressPercent}% Complete`, 
+                    color: '#10b981' 
+                },
+                { 
+                    label: 'At Risk', 
+                    value: atRiskCount, 
+                    color: '#ef4444' 
+                },
+                { 
+                    label: 'Overdue', 
+                    value: overdueCount, 
+                    color: '#f59e0b' 
+                },
+                { 
+                    label: 'Unassigned', 
+                    value: unassignedCount, 
+                    color: '#6b7280' 
+                }
             ];
             
             summaryCards.forEach(card => {
@@ -1116,8 +1497,8 @@
                 cardDiv.className = 'executive-summary-card';
                 cardDiv.style.borderTop = `4px solid ${card.color}`;
                 cardDiv.innerHTML = `
-                    <div class="number" style="color: ${card.color}">${card.value}</div>
-                    <div class="label">${card.label}</div>
+                    <div class="number" style="color: ${card.color}; font-size: 24px; font-weight: 700;">${card.value}</div>
+                    <div class="label" style="font-size: 12px; color: #666; margin-top: 5px;">${card.label}</div>
                 `;
                 summaryContainer.appendChild(cardDiv);
             });
@@ -1617,8 +1998,39 @@
                 customJql = customJql.replace(/fixVerison/gi, 'fixVersion');
                 document.getElementById('customJql').value = customJql;
                 console.log('✅ [fetchAllData] Corrected JQL:', customJql);
-            } else {
-                console.log('✅ [fetchAllData] No typo found in JQL');
+            }
+            
+            // Fix fixVersion syntax: ensure values in parentheses are quoted if not already
+            // Example: fixVersion in (NBD-2.10) -> fixVersion in ("NBD-2.10")
+            // Or: fixVersion = NBD-2.10 -> fixVersion = "NBD-2.10"
+            if (customJql && customJql.includes('fixVersion')) {
+                // Fix fixVersion in (...) syntax
+                customJql = customJql.replace(/fixVersion\s+in\s*\(([^)]+)\)/gi, (match, values) => {
+                    // Check if values are already quoted
+                    if (!values.includes('"') && !values.includes("'")) {
+                        // Quote each value
+                        const quotedValues = values.split(',').map(v => {
+                            const trimmed = v.trim();
+                            return `"${trimmed}"`;
+                        }).join(', ');
+                        return `fixVersion in (${quotedValues})`;
+                    }
+                    return match;
+                });
+                
+                // Fix fixVersion = value syntax (single value, not in parentheses)
+                customJql = customJql.replace(/fixVersion\s*=\s*([^\s\)]+)/gi, (match, value) => {
+                    // Don't quote if it's already quoted or is a variable
+                    if (!value.includes('"') && !value.includes("'") && !value.startsWith('$')) {
+                        return `fixVersion = "${value}"`;
+                    }
+                    return match;
+                });
+                
+                if (customJql !== document.getElementById('customJql').value) {
+                    console.log('✅ [fetchAllData] Fixed fixVersion syntax:', customJql);
+                    document.getElementById('customJql').value = customJql;
+                }
             }
 
             loading.style.display = 'block';
@@ -1637,7 +2049,7 @@
                 console.log('🌐 [fetchAllData] Request URL:', url);
                 
                 const headers = {
-                    'X-Jira-Token': storedToken
+                        'X-Jira-Token': storedToken
                 };
                 
                 // Add Confluence token if available
@@ -1655,7 +2067,26 @@
                 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}. ${errorText}`);
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { error: errorText };
+                    }
+                    
+                    let errorMessage = errorData.error || errorData.message || errorText || `HTTP ${response.status}: ${response.statusText}`;
+                    
+                    // Provide helpful suggestions for common JQL errors
+                    if (errorMessage.includes("does not exist for the field 'fixVersion'")) {
+                        errorMessage += '\n\n💡 Tip: The fixVersion value might not exist in Jira, or it might need quotes. Try:\n' +
+                                      '   - Check if the version name is correct (e.g., "NDB-2.10" vs "NBD-2.10")\n' +
+                                      '   - Use quotes: fixVersion in ("NDB-2.10")\n' +
+                                      '   - Or use equals: fixVersion = "NDB-2.10"';
+                    } else if (errorMessage.includes('fixVersion')) {
+                        errorMessage += '\n\n💡 Tip: Make sure fixVersion values are quoted, e.g., fixVersion in ("NDB-2.10")';
+                    }
+                    
+                    throw new Error(`HTTP ${response.status}: ${errorMessage}`);
                 }
                 
                 const data = await response.json();
@@ -1786,6 +2217,13 @@
                     // Now display issues (this will call renderTable which will populate the table)
                     displayIssues(featOrInitiative);
                     updateStats(featOrInitiative, totalTicketsFromAPI);
+                    buildExecutiveSummary(featOrInitiative);
+                    
+                    // Show executive summary
+                    const execSummary = document.getElementById('executiveSummary');
+                    if (execSummary) {
+                        execSummary.style.display = 'grid';
+                    }
                     
                     // Final check after a short delay to ensure everything is visible
                     setTimeout(() => {
@@ -1849,123 +2287,82 @@
             const error = document.getElementById('error');
             const issuesTable = document.getElementById('issuesTable');
             const stats = document.getElementById('stats');
-            let customJql = document.getElementById('customJql').value;
-            console.log('🔍 [refreshColumns] Original JQL:', customJql);
-
-            // Fix common typo: fixVerison -> fixVersion
-            if (customJql && customJql.includes('fixVerison')) {
-                console.warn('⚠️ [refreshColumns] Fixed typo: "fixVerison" -> "fixVersion"');
-                customJql = customJql.replace(/fixVerison/gi, 'fixVersion');
-                document.getElementById('customJql').value = customJql;
-                console.log('✅ [refreshColumns] Corrected JQL:', customJql);
-            } else {
-                console.log('✅ [refreshColumns] No typo found in JQL');
+            
+            // Check if we have existing data to re-render
+            if (!allIssues || allIssues.length === 0) {
+                error.style.display = 'block';
+                document.getElementById('errorMessage').textContent = 'No data available. Please click "Fetch Data" first to load data, then use "Refresh Columns" to apply rendering changes.';
+                return;
             }
+            
+            console.log('🔄 [refreshColumns] Re-rendering existing data with updated rendering logic');
+            console.log('📊 [refreshColumns] Re-rendering', allIssues.length, 'total issues');
 
             loading.style.display = 'block';
             error.style.display = 'none';
-            issuesTable.style.display = 'none';
-            stats.style.display = 'none';
-
+            
             try {
-                const storedToken = localStorage.getItem('jira_bearer_token');
-                if (!storedToken) {
-                    throw new Error('Please authenticate first. Click the Authenticate button.');
-                }
-                
-                const url = customJql ? `http://localhost:7842/api/refresh-columns?jql=${encodeURIComponent(customJql)}&t=${Date.now()}` : `http://localhost:7842/api/refresh-columns?t=${Date.now()}`;
-                console.log('🌐 [refreshColumns] Sending request with JQL:', customJql);
-                console.log('Refreshing columns from:', url);
-                const response = await fetch(url, {
-                    headers: {
-                        'X-Jira-Token': storedToken
-                    }
-                });
-                console.log('Refresh response status:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('Refresh response data:', data);
-
-                if (data.success) {
-                    console.log('Columns refreshed successfully. Issues count:', data.issues ? data.issues.length : 0);
-                    console.log('📊 Total tickets from API:', data.total || 0);
+                // Filter to show only FEAT or INITIATIVE tickets (same logic as fetchAllData)
+                let featOrInitiative = allIssues.filter(issue => {
+                    if (!issue) return false;
                     
-                    // Store total from API
-                    totalTicketsFromAPI = data.total || 0;
-                    
-                    // Store all tickets in background (same as fetchAllData)
-                    allIssues = data.issues || [];
-                    
-                    // Filter to show only FEAT or INITIATIVE tickets
-                    let featOrInitiative = allIssues.filter(issue => {
-                        if (!issue) return false;
-                        
-                        // Try different possible field names for issuetype
-                        let type = '';
-                        if (issue.issuetype) {
-                            if (typeof issue.issuetype === 'string') {
-                                type = issue.issuetype;
-                            } else if (typeof issue.issuetype === 'object') {
-                                type = issue.issuetype.name || issue.issuetype.value || '';
-                            } else {
-                                type = String(issue.issuetype);
-                            }
-                        } else if (issue.type) {
-                            type = typeof issue.type === 'string' ? issue.type : (issue.type?.name || '');
-                        } else if (issue.fields && issue.fields.issuetype) {
-                            const it = issue.fields.issuetype;
-                            type = typeof it === 'string' ? it : (it.name || it.value || '');
+                    // Try different possible field names for issuetype
+                    let type = '';
+                    if (issue.issuetype) {
+                        if (typeof issue.issuetype === 'string') {
+                            type = issue.issuetype;
+                        } else if (typeof issue.issuetype === 'object') {
+                            type = issue.issuetype.name || issue.issuetype.value || '';
+                        } else {
+                            type = String(issue.issuetype);
                         }
-                        
-                        const normalizedType = type.toLowerCase();
-                        return normalizedType.includes('feat') || normalizedType.includes('initiative');
-                    });
-                    
-                    // If no FEAT/INITIATIVE found, show all issues
-                    if (featOrInitiative.length === 0 && allIssues.length > 0) {
-                        featOrInitiative = allIssues;
+                    } else if (issue.type) {
+                        type = typeof issue.type === 'string' ? issue.type : (issue.type?.name || '');
+                    } else if (issue.fields && issue.fields.issuetype) {
+                        const it = issue.fields.issuetype;
+                        type = typeof it === 'string' ? it : (it.name || it.value || '');
                     }
                     
-                    currentIssues = featOrInitiative;
+                    const normalizedType = type.toLowerCase();
+                    return normalizedType.includes('feat') || normalizedType.includes('initiative');
+                });
+                
+                // If no FEAT/INITIATIVE found, show all issues
+                if (featOrInitiative.length === 0 && allIssues.length > 0) {
+                    featOrInitiative = allIssues;
+                }
+                
+                currentIssues = featOrInitiative;
+                
+                // Load field names for better column display (in case field names were updated)
+                await loadFieldNames();
+                
+                // Re-render everything with updated rendering logic
+                displayIssues(featOrInitiative);
+                updateStats(featOrInitiative, totalTicketsFromAPI || allIssues.length);
+                buildExecutiveSummary(featOrInitiative);
+                
+                // Show executive summary
+                const execSummary = document.getElementById('executiveSummary');
+                if (execSummary) {
+                    execSummary.style.display = 'grid';
+                }
                     
                     // Show the table
                     if (issuesTable) {
                         issuesTable.style.display = 'table';
                     }
                     
-                    // Load field names for better column display
-                    await loadFieldNames();
-                    
-                    displayIssues(featOrInitiative);
-                    updateStats(featOrInitiative, totalTicketsFromAPI);
-                    
-                    // Update executive view if visible
-                    const executiveView = document.getElementById('executiveView');
-                    if (executiveView && executiveView.style.display !== 'none') {
-                        buildExecutiveDashboard(data.issues);
-                    }
-                    
-                    console.log('Columns refreshed successfully:', data.message);
-                } else {
-                    throw new Error(data.error || 'Failed to refresh columns');
+                // Show stats
+                if (stats) {
+                    stats.style.display = 'block';
                 }
+                
+                console.log('✅ [refreshColumns] Re-rendering complete with', featOrInitiative.length, 'issues');
             } catch (err) {
                 console.error('Error refreshing columns:', err);
                 error.style.display = 'block';
-                let errorMsg = err.message || 'Failed to refresh data';
-                
-                // Provide helpful error messages
-                if (errorMsg.includes('authenticate') || errorMsg.includes('token')) {
-                    errorMsg += ' Please click the Authenticate button and enter your Bearer token.';
-                } else if (errorMsg.includes('HTTP 401') || errorMsg.includes('HTTP 403')) {
-                    errorMsg += ' Your token may be invalid or expired. Please re-authenticate.';
-                }
-                
-                document.getElementById('errorMessage').textContent = errorMsg;
+                document.getElementById('errorMessage').textContent = `Error re-rendering: ${err.message}`;
             } finally {
                 loading.style.display = 'none';
             }
@@ -2003,7 +2400,7 @@
                     createTableHeader();
                     // Small delay to ensure header is in DOM
                     setTimeout(() => {
-                        renderTable();
+                    renderTable();
                     }, 50);
                 }).catch(err => {
                     console.error('❌ [displayIssues] Failed to load table config:', err);
@@ -2019,7 +2416,7 @@
                 createTableHeader();
                 // Small delay to ensure header is in DOM
                 setTimeout(() => {
-                    renderTable();
+                renderTable();
                 }, 50);
             }
             
@@ -2282,12 +2679,122 @@
                                 if (column.key === 'customfield_23073' || column.jiraField === 'customfield_23073') {
                                     displaySummarizedField(td, value, issue.key, column.key);
                                 }
-                                // Special handling for customfield_23560 (Risk Indicator) - display value
+                                // Special handling for customfield_23560 (Risk Indicator) - display with color coding
                                 else if (column.key === 'customfield_23560' || column.jiraField === 'customfield_23560') {
                                     if (value && value !== '') {
-                                        td.textContent = value;
+                                        const riskBadge = document.createElement('span');
+                                        riskBadge.textContent = value;
+                                        const riskLower = value.toLowerCase();
+                                        
+                                        // Check for "yellow" or "slight risk" FIRST (before checking for "red" or "big risk")
+                                        // This ensures "Yellow - Slight Risk to Plan" matches yellow, not red
+                                        if (riskLower.includes('yellow') || riskLower.includes('slight risk')) {
+                                            riskBadge.className = 'risk-badge risk-watch';
+                                            // Yellow: bright yellow/amber background with dark brown text for visibility
+                                            riskBadge.style.cssText = 'background: #fbbf24; color: #78350f; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (riskLower.includes('red') || riskLower.includes('at risk') || riskLower.includes('big risk')) {
+                                            riskBadge.className = 'risk-badge risk-at-risk';
+                                            // Red: bright red background with white text for high contrast
+                                            riskBadge.style.cssText = 'background: #ef4444; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (riskLower.includes('green') || riskLower.includes('on track') || riskLower.includes('track')) {
+                                            riskBadge.className = 'risk-badge risk-on-track';
+                                            // Green: bright green background with white text
+                                            riskBadge.style.cssText = 'background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (riskLower.includes('watch') || riskLower.includes('monitor')) {
+                                            riskBadge.className = 'risk-badge risk-watch';
+                                            // Yellow: bright yellow/amber background with dark brown text for visibility
+                                            riskBadge.style.cssText = 'background: #fbbf24; color: #78350f; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else {
+                                            riskBadge.style.cssText = 'padding: 4px 10px; border-radius: 4px; font-size: 11px;';
+                                        }
+                                        td.appendChild(riskBadge);
                                     } else {
                                         td.textContent = '-';
+                                        td.style.color = '#999';
+                                    }
+                                }
+                                // Special handling for story points
+                                else if (column.key === 'customfield_10002' || column.jiraField === 'customfield_10002') {
+                                    const spValue = parseFloat(value) || 0;
+                                    const spBadge = document.createElement('span');
+                                    spBadge.className = 'story-point-badge';
+                                    spBadge.textContent = spValue;
+                                    td.appendChild(spBadge);
+                                }
+                                // Special handling for due date with overdue highlighting
+                                else if (column.key === 'duedate' || column.jiraField === 'duedate') {
+                                    if (value) {
+                                        const dueDate = new Date(value);
+                                        const now = new Date();
+                                        now.setHours(0, 0, 0, 0);
+                                        dueDate.setHours(0, 0, 0, 0);
+                                        
+                                        const dateStr = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                        
+                                        if (dueDate < now) {
+                                            // Overdue - highlight in red
+                                            td.style.cssText = 'color: #dc2626; font-weight: 600; background: #fee2e2; padding: 4px 8px; border-radius: 4px;';
+                                            td.textContent = dateStr + ' ⚠️';
+                                        } else {
+                                            td.textContent = dateStr;
+                                        }
+                                    } else {
+                                        td.textContent = '-';
+                                        td.style.color = '#999';
+                                    }
+                                }
+                                // Special handling for assignee - show "-" instead of "Unassigned"
+                                else if (column.key === 'assignee') {
+                                    if (value && value !== '-' && value !== 'Unassigned') {
+                                    td.textContent = value;
+                                    } else {
+                                        td.textContent = '-';
+                                        td.style.color = '#999';
+                                    }
+                                }
+                                // Special handling for % Complete
+                                else if (column.key === 'percentComplete' || column.jiraField === 'percentComplete') {
+                                    const percent = parseFloat(value) || 0;
+                                    const percentBadge = document.createElement('span');
+                                    percentBadge.textContent = `${percent}%`;
+                                    if (percent === 100) {
+                                        percentBadge.style.cssText = 'background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                    } else if (percent >= 75) {
+                                        percentBadge.style.cssText = 'background: #3b82f6; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                    } else if (percent >= 50) {
+                                        percentBadge.style.cssText = 'background: #f59e0b; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                    } else {
+                                        percentBadge.style.cssText = 'background: #e5e5e5; color: #333; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                    }
+                                    td.appendChild(percentBadge);
+                                }
+                                // Special handling for priority - add color coding
+                                else if (column.key === 'priority') {
+                                    if (value && value !== 'N/A') {
+                                        const priorityBadge = document.createElement('span');
+                                        priorityBadge.textContent = value;
+                                        const priorityLower = value.toLowerCase();
+                                        if (priorityLower.includes('critical') || priorityLower.includes('highest') || priorityLower.includes('blocker')) {
+                                            priorityBadge.className = 'priority-badge critical';
+                                            priorityBadge.style.cssText = 'background: #ef4444; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (priorityLower.includes('high') || priorityLower.includes('major')) {
+                                            priorityBadge.className = 'priority-badge high';
+                                            priorityBadge.style.cssText = 'background: #f59e0b; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (priorityLower.includes('medium') || priorityLower.includes('normal')) {
+                                            priorityBadge.className = 'priority-badge medium';
+                                            priorityBadge.style.cssText = 'background: #3b82f6; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (priorityLower.includes('low') || priorityLower.includes('minor')) {
+                                            priorityBadge.className = 'priority-badge low';
+                                            priorityBadge.style.cssText = 'background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else if (priorityLower.includes('lowest') || priorityLower.includes('trivial')) {
+                                            priorityBadge.className = 'priority-badge lowest';
+                                            priorityBadge.style.cssText = 'background: #e5e5e5; color: #333; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;';
+                                        } else {
+                                            priorityBadge.style.cssText = 'padding: 4px 10px; border-radius: 4px; font-size: 11px;';
+                                        }
+                                        td.appendChild(priorityBadge);
+                                    } else {
+                                        td.textContent = 'N/A';
                                         td.style.color = '#999';
                                     }
                                 } else {
@@ -2334,6 +2841,31 @@
                         
                         row.appendChild(td);
                     });
+                    
+                    // Highlight overdue rows
+                    if (issue.duedate) {
+                        const dueDate = new Date(issue.duedate);
+                        const now = new Date();
+                        now.setHours(0, 0, 0, 0);
+                        dueDate.setHours(0, 0, 0, 0);
+                        const status = (issue.status?.name || issue.status || '').toLowerCase();
+                        const isResolved = status.includes('done') || status.includes('closed') || status.includes('resolved');
+                        if (dueDate < now && !isResolved) {
+                            row.style.borderLeft = '4px solid #ef4444';
+                            row.style.background = '#fef2f2';
+                        }
+                    }
+                    
+                    // Add click handler to open metrics modal
+                    row.style.cursor = 'pointer';
+                    row.onclick = (e) => {
+                        // Don't open modal if clicking on links
+                        if (e.target.tagName === 'A') return;
+                        const featureKey = issue.key;
+                        if (featureKey) {
+                            openFeatureModal(featureKey);
+                        }
+                    };
                     
                     tableBody.appendChild(row);
                 });
@@ -2393,8 +2925,8 @@
                 const newPageSize = parseInt(select.value);
                 if (!isNaN(newPageSize) && newPageSize > 0) {
                     pageSize = newPageSize;
-                    currentPage = 1;
-                    renderTable();
+                currentPage = 1;
+                renderTable();
                 }
             }
         }
@@ -2569,7 +3101,7 @@
                 } else {
                     // It's a feature key - generate complex JQL
                     jql = generateFeatureJQL(featureKey);
-                    console.log('🔍 Generated JQL for feature:', jql);
+                console.log('🔍 Generated JQL for feature:', jql);
                 }
                 
                 // Set the JQL in the input field
@@ -3305,25 +3837,17 @@
             console.log('DOM loaded, initializing application...');
             
             try {
-                // Check authentication status
-                checkAuthStatus();
-                
-                // Add a small delay to ensure server is ready
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
+            // Check authentication status
+            checkAuthStatus();
+            
+            // Add a small delay to ensure server is ready
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
                 console.log('Loading table configuration...');
                 await loadTableConfig();
                 
-                console.log('Creating table header...');
-                createTableHeader();
-                
-                // Check for stored token
-                // Don't auto-fetch data - only load configuration
-                // User must click "Fetch Data" button to load data
-                console.log('✅ Application initialized. Click "Fetch Data" to load tickets.');
-                
-                // Don't auto-fetch data - only load configuration
-                // User must click "Fetch Data" button to load data
+                // Don't create table header until data is fetched
+                // Table container is hidden by default
                 console.log('✅ Application initialized. Click "Fetch Data" to load tickets.');
             } catch (initError) {
                 console.error('❌ Error during initialization:', initError);
@@ -3338,8 +3862,458 @@
             }
         });
 
-        // Auto-refresh every 5 minutes
-        setInterval(refreshColumns, 5 * 60 * 1000);
+        // Auto-refresh removed - user must manually fetch data
+
+        // Feature Metrics Modal
+        let featureMetricsModal = null;
+        let currentFeatureKey = null;
+        let featureMetricsCharts = {};
+
+        function initFeatureModal() {
+            featureMetricsModal = document.getElementById('featureMetricsModal');
+            if (!featureMetricsModal) {
+                console.error('Feature metrics modal not found');
+                return;
+            }
+
+            const closeBtn = featureMetricsModal.querySelector('.feature-modal-close');
+            if (closeBtn) {
+                closeBtn.onclick = () => closeFeatureModal();
+            }
+
+            featureMetricsModal.onclick = (e) => {
+                if (e.target === featureMetricsModal) {
+                    closeFeatureModal();
+                }
+            };
+
+            // No tabs needed - single view
+        }
+
+        function openFeatureModal(featureKey) {
+            currentFeatureKey = featureKey;
+            if (!featureMetricsModal) {
+                initFeatureModal();
+            }
+            if (featureMetricsModal) {
+                featureMetricsModal.classList.add('active');
+                loadFeatureMetrics(featureKey);
+            }
+        }
+
+        function closeFeatureModal() {
+            if (featureMetricsModal) {
+                featureMetricsModal.classList.remove('active');
+            }
+            Object.values(featureMetricsCharts).forEach(chart => {
+                if (chart && chart.destroy) chart.destroy();
+            });
+            featureMetricsCharts = {};
+        }
+
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.metrics-tab');
+            const contents = document.querySelectorAll('.metrics-tab-content');
+            
+            tabs.forEach(tab => {
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            contents.forEach(content => {
+                if (content.dataset.tab === tabName) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        async function loadFeatureMetrics(featureKey) {
+            const modalBody = document.querySelector('.feature-modal-body');
+            if (!modalBody) return;
+
+            modalBody.innerHTML = '<div class="loading-spinner">Loading metrics...</div>';
+
+            try {
+            const storedToken = localStorage.getItem('jira_bearer_token');
+                if (!storedToken) {
+                    throw new Error('Please authenticate first');
+                }
+
+                const response = await fetch(`http://localhost:7842/api/feature-metrics/${featureKey}`, {
+                    headers: {
+                        'X-Jira-Token': storedToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    renderFeatureMetrics(data.metrics, featureKey);
+            } else {
+                    throw new Error(data.error || 'Failed to load metrics');
+                }
+            } catch (error) {
+                modalBody.innerHTML = `<div class="loading-spinner" style="color: #ef4444;">Error: ${error.message}</div>`;
+                console.error('Error loading feature metrics:', error);
+            }
+        }
+
+        function renderFeatureMetrics(metrics, featureKey) {
+            const modalBody = document.querySelector('.feature-modal-body');
+            const modalHeader = document.querySelector('.feature-modal-header h2');
+            
+            if (modalHeader) {
+                modalHeader.textContent = `${featureKey} - Metrics`;
+            }
+
+            // Single clean view - no tabs
+            modalBody.innerHTML = `
+                ${renderKickOffEpicDueDates(metrics.kickOffEpicDueDates || {})}
+                <div class="metrics-grid">
+                    <!-- Story Points Progress -->
+                    <div class="metric-card">
+                        <h3>📊 Progress</h3>
+                        <div class="metric-summary">
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Total SP</div>
+                                <div class="metric-summary-value">${metrics.totalStoryPoints || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Done</div>
+                                <div class="metric-summary-value" style="color: #10b981;">${metrics.completedStoryPoints || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Remaining</div>
+                                <div class="metric-summary-value" style="color: #ef4444;">${metrics.remainingStoryPoints || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Progress</div>
+                                <div class="metric-summary-value">${metrics.progressPercent || 0}%</div>
+                            </div>
+                        </div>
+                        <div class="metric-chart-container">
+                            <canvas id="overviewProgressChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Tasks Created vs Resolved -->
+                    <div class="metric-card">
+                        <h3>📋 Tasks</h3>
+                        <div class="metric-summary">
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Created</div>
+                                <div class="metric-summary-value">${metrics.tasks?.totalCreated || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Resolved</div>
+                                <div class="metric-summary-value" style="color: #10b981;">${metrics.tasks?.totalResolved || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Open</div>
+                                <div class="metric-summary-value" style="color: #ef4444;">${metrics.tasks?.open || 0}</div>
+                            </div>
+                        </div>
+                        <div class="metric-chart-container">
+                            <canvas id="tasksCreatedResolvedChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bugs Created vs Resolved -->
+                    <div class="metric-card">
+                        <h3>🐛 Bugs</h3>
+                        <div class="metric-summary">
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Created</div>
+                                <div class="metric-summary-value">${metrics.bugs?.totalCreated || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Resolved</div>
+                                <div class="metric-summary-value" style="color: #10b981;">${metrics.bugs?.totalResolved || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Open</div>
+                                <div class="metric-summary-value" style="color: #ef4444;">${metrics.bugs?.open || 0}</div>
+                            </div>
+                        </div>
+                        <div class="metric-chart-container">
+                            <canvas id="bugsCreatedResolvedChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Tests Created vs Resolved -->
+                    <div class="metric-card">
+                        <h3>🧪 Tests</h3>
+                        <div class="metric-summary">
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Created</div>
+                                <div class="metric-summary-value">${metrics.tests?.totalCreated || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Resolved</div>
+                                <div class="metric-summary-value" style="color: #10b981;">${metrics.tests?.totalResolved || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Open</div>
+                                <div class="metric-summary-value" style="color: #ef4444;">${metrics.tests?.open || 0}</div>
+                            </div>
+                        </div>
+                        <div class="metric-chart-container">
+                            <canvas id="testsCreatedResolvedChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Table -->
+                    <div class="metric-card" style="grid-column: 1 / -1;">
+                        <h3>📅 Timeline</h3>
+                        <div class="metric-summary">
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Pending SP</div>
+                                <div class="metric-summary-value">${metrics.totalPendingStoryPoints || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Items Due</div>
+                                <div class="metric-summary-value">${metrics.itemsDue || 0}</div>
+                            </div>
+                            <div class="metric-summary-item">
+                                <div class="metric-summary-label">Overdue</div>
+                                <div class="metric-summary-value" style="color: #ef4444;">${metrics.overdue || 0}</div>
+                            </div>
+                        </div>
+                        ${renderTimelineTable(metrics.timeline || [])}
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                renderCharts(metrics);
+            }, 100);
+        }
+
+        function renderKickOffEpicDueDates(kickOffData) {
+            if (!kickOffData || !kickOffData.tasks || kickOffData.tasks.length === 0) {
+                return '';
+            }
+
+            const tasks = kickOffData.tasks;
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            // Group by due date
+            const tasksByDate = {};
+            tasks.forEach(task => {
+                const dueDate = new Date(task.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                const dateKey = dueDate.toISOString().split('T')[0];
+                if (!tasksByDate[dateKey]) {
+                    tasksByDate[dateKey] = [];
+                }
+                tasksByDate[dateKey].push(task);
+            });
+
+            // Sort dates
+            const sortedDates = Object.keys(tasksByDate).sort();
+
+            let timelineHTML = '';
+            sortedDates.forEach(dateKey => {
+                const date = new Date(dateKey);
+                const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                const isOverdue = date < now;
+                const isToday = dateKey === now.toISOString().split('T')[0];
+                
+                const dateClass = isOverdue ? 'overdue' : (isToday ? 'today' : 'upcoming');
+                
+                timelineHTML += `
+                    <div class="due-date-group ${dateClass}">
+                        <div class="due-date-header">
+                            <span class="due-date-label">${dateStr}</span>
+                            <span class="due-date-count">${tasksByDate[dateKey].length} task${tasksByDate[dateKey].length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="due-date-tasks">
+                            ${tasksByDate[dateKey].map(task => {
+                                const statusClass = task.status?.toLowerCase().replace(/\s+/g, '-') || 'todo';
+                                return `
+                                    <div class="due-date-task">
+                                        <span class="task-key"><a href="https://jira.nutanix.com/browse/${task.key}" target="_blank">${task.key}</a></span>
+                                        <span class="task-summary">${task.summary}</span>
+                                        <span class="status-badge ${statusClass}">${task.status}</span>
+                                        <span class="task-assignee">${task.assignee}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="kickoff-epic-section">
+                    <h3>📅 Kick Off Epic: ${kickOffData.epicKey || 'N/A'} - ${kickOffData.epicSummary || 'N/A'}</h3>
+                    <div class="due-dates-timeline">
+                        ${timelineHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTimelineTable(timelineItems) {
+            if (timelineItems.length === 0) {
+                return '<div class="loading-spinner">No timeline data available</div>';
+            }
+
+            let tableRows = '';
+            timelineItems.forEach(item => {
+                const dueDate = item.dueDate ? new Date(item.dueDate).toLocaleDateString() : 'N/A';
+                const statusClass = item.status?.toLowerCase().replace(/\s+/g, '-') || 'todo';
+                const priorityClass = item.priority?.toLowerCase().replace(/\s+/g, '-') || 'medium';
+                tableRows += `
+                    <tr>
+                        <td><strong>${item.key || 'N/A'}</strong></td>
+                        <td>${item.summary || 'N/A'}</td>
+                        <td><span class="status-badge ${statusClass}">${item.status || 'N/A'}</span></td>
+                        <td>${dueDate}</td>
+                        <td><span class="story-point-badge">${item.storyPoints || 0}</span></td>
+                        <td>${item.assignee || 'Unassigned'}</td>
+                        <td>${item.components || 'None'}</td>
+                        <td><span class="priority-badge ${priorityClass}">${item.priority || 'N/A'}</span></td>
+                    </tr>
+                `;
+            });
+
+            return `
+                <table class="timeline-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Summary</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>SP</th>
+                            <th>Assignee</th>
+                            <th>Components</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderCharts(metrics) {
+            // Progress chart
+            if (metrics.totalStoryPoints) {
+                const ctx1 = document.getElementById('overviewProgressChart');
+                if (ctx1) {
+                    featureMetricsCharts.overview = new Chart(ctx1, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Done', 'Remaining'],
+                            datasets: [{
+                                data: [metrics.completedStoryPoints || 0, metrics.remainingStoryPoints || 0],
+                                backgroundColor: ['#10b981', '#e5e5e5']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Tasks chart
+            if (metrics.tasks?.timeline && metrics.tasks.timeline.length > 0) {
+                renderCreatedResolvedChart('tasks', metrics.tasks.timeline);
+            }
+
+            // Bugs chart
+            if (metrics.bugs?.timeline && metrics.bugs.timeline.length > 0) {
+                renderCreatedResolvedChart('bugs', metrics.bugs.timeline);
+            }
+
+            // Tests chart
+            if (metrics.tests?.timeline && metrics.tests.timeline.length > 0) {
+                renderCreatedResolvedChart('tests', metrics.tests.timeline);
+            }
+        }
+
+        function renderCreatedResolvedChart(type, timeline) {
+            const ctx = document.getElementById(`${type}CreatedResolvedChart`);
+            if (!ctx || !timeline || timeline.length === 0) {
+                // Show placeholder if no data
+                if (ctx) {
+                    ctx.parentElement.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No timeline data available</div>';
+                }
+                return;
+            }
+
+            const dates = timeline.map(t => {
+                const date = new Date(t.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            const created = timeline.map(t => t.created || 0);
+            const resolved = timeline.map(t => t.resolved || 0);
+
+            featureMetricsCharts[type] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Created',
+                            data: created,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Resolved',
+                            data: resolved,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
     </script>
+
+    <!-- Feature Metrics Modal -->
+    <div id="featureMetricsModal" class="feature-modal">
+        <div class="feature-modal-content">
+            <div class="feature-modal-header">
+                <h2>Feature Metrics</h2>
+                <span class="feature-modal-close">&times;</span>
+            </div>
+            <div class="feature-modal-body">
+                <div class="loading-spinner">Loading...</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -531,9 +531,27 @@ class JiraClient {
       const firstIssueKey = issues.length > 0 ? issues[0].key : null;
       
       return issues.map((issue, index) => {
+      // Calculate % Complete based on status (simple version)
+      // For features, this should ideally be calculated from related issues, but for now use status
+      const status = issue.fields?.status?.name || issue.fields?.status || '';
+      const statusLower = status.toLowerCase();
+      let percentComplete = 0;
+      if (statusLower.includes('done') || statusLower.includes('closed')) {
+        percentComplete = 100;
+      } else if (statusLower.includes('resolved')) {
+        percentComplete = 90;
+      } else if (statusLower.includes('code complete') || statusLower.includes('commit gate met') || statusLower.includes('promotion gate met')) {
+        percentComplete = 75;
+      } else if (statusLower.includes('in progress') || statusLower.includes('development')) {
+        percentComplete = 50;
+      } else if (statusLower.includes('to do') || statusLower.includes('backlog')) {
+        percentComplete = 0;
+      }
+      
       const formattedIssue = {
         url: `${cleanBaseUrl}/browse/${issue.key}`,
         key: issue.key || '',
+        percentComplete: percentComplete,
         // Store all Confluence links for display
         allConfluenceLinks: issue._allConfluenceLinks || []
       };
@@ -664,7 +682,6 @@ class JiraClient {
               if (index === 0) {
                 console.log(`🔍 [formatIssues] CG Completion for ${issue.key}:`, {
                   readinessLinks: readinessLinks,
-                  cgReadinessLink: cgReadinessLink,
                   finalValue: formattedIssue[column.key],
                   hasReadinessLinks: !!issue._readinessLinks,
                   _readinessLinksCg: issue._readinessLinks?.cg
@@ -723,6 +740,69 @@ class JiraClient {
             } else {
               formattedIssue[column.key] = 'No';
             }
+          }
+          // Special handling for assignee - extract displayName
+          // Always check issue.fields.assignee directly to ensure we get the object
+          else if (column.key === 'assignee' || column.jiraField === 'assignee' || column.jiraField === 'assignee.displayName') {
+            const assigneeObj = issue.fields?.assignee;
+            
+            if (assigneeObj && typeof assigneeObj === 'object') {
+              formattedIssue[column.key] = assigneeObj.displayName || assigneeObj.name || assigneeObj.toString() || '-';
+            } else if (fieldValue && typeof fieldValue === 'object') {
+              formattedIssue[column.key] = fieldValue.displayName || fieldValue.name || fieldValue.toString() || '-';
+            } else if (fieldValue) {
+              formattedIssue[column.key] = String(fieldValue);
+            } else {
+              formattedIssue[column.key] = '-';
+            }
+          }
+          // Special handling for components - extract names from array
+          else if (column.key === 'components' || column.jiraField === 'components') {
+            const componentsArray = issue.fields?.components;
+            if (Array.isArray(componentsArray) && componentsArray.length > 0) {
+              formattedIssue[column.key] = componentsArray.map(c => c.name || c.id || 'Unknown').join(', ');
+            } else if (fieldValue && Array.isArray(fieldValue) && fieldValue.length > 0) {
+              formattedIssue[column.key] = fieldValue.map(c => c.name || c.id || 'Unknown').join(', ');
+            } else if (fieldValue && typeof fieldValue === 'object') {
+              formattedIssue[column.key] = fieldValue.name || fieldValue.id || 'Unknown';
+            } else {
+              formattedIssue[column.key] = '';
+            }
+          }
+          // Special handling for priority - extract name
+          else if (column.key === 'priority' || column.jiraField === 'priority' || column.jiraField === 'priority.name') {
+            const priorityObj = issue.fields?.priority;
+            if (priorityObj && typeof priorityObj === 'object') {
+              formattedIssue[column.key] = priorityObj.name || priorityObj.value || priorityObj.toString() || 'N/A';
+            } else if (fieldValue && typeof fieldValue === 'object') {
+              formattedIssue[column.key] = fieldValue.name || fieldValue.value || fieldValue.toString() || 'N/A';
+            } else if (fieldValue) {
+              formattedIssue[column.key] = String(fieldValue);
+            } else {
+              formattedIssue[column.key] = 'N/A';
+            }
+          }
+          // Special handling for story points
+          else if (column.key === 'customfield_10002' || column.jiraField === 'customfield_10002') {
+            const storyPoints = issue.fields?.customfield_10002;
+            if (storyPoints !== null && storyPoints !== undefined) {
+              formattedIssue[column.key] = parseFloat(storyPoints) || 0;
+            } else {
+              formattedIssue[column.key] = 0;
+            }
+          }
+          // Special handling for due date
+          else if (column.key === 'duedate' || column.jiraField === 'duedate') {
+            const dueDate = issue.fields?.duedate;
+            if (dueDate) {
+              formattedIssue[column.key] = dueDate;
+            } else {
+              formattedIssue[column.key] = null;
+            }
+          }
+          // Special handling for % Complete (already calculated above)
+          else if (column.key === 'percentComplete' || column.jiraField === 'percentComplete') {
+            formattedIssue[column.key] = formattedIssue.percentComplete || 0;
           } else {
             formattedIssue[column.key] = this.formatFieldValue(fieldValue, column.type);
           }

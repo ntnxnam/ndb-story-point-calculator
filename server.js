@@ -1603,6 +1603,476 @@ app.post('/api/test-confluence-token', express.json(), async (req, res) => {
   }
 });
 
+// Feature Metrics Endpoint
+app.get('/api/feature-metrics/:key', async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const featureKey = req.params.key;
+    const userToken = req.headers['x-jira-token'];
+    
+    if (!userToken) {
+      return res.status(401).json({
+        success: false,
+        error: 'No authentication token provided'
+      });
+    }
+    
+    console.log(`📊 [API] /api/feature-metrics/${featureKey} - Fetching metrics...`);
+    
+    // Generate base JQL to find all related tickets
+    // Use simpler JQL that works with standard Jira (avoiding issueFunction which requires plugins)
+    const baseJQL = `(
+      key = ${featureKey} OR
+      "Parent Link" = ${featureKey} OR
+      "FEAT ID" ~ ${featureKey} OR
+      "FEAT Number" = ${featureKey} OR
+      parent = ${featureKey} OR
+      "Epic Link" = ${featureKey}
+    )`;
+    
+    // Fetch all related issues - ensure we request story points field
+    // Override fields to include customfield_10002 for story points
+    const ConfigManager = require('./config');
+    const configManager = new ConfigManager();
+    const backendConfig = configManager.getBackendConfig();
+    let fields = backendConfig.allPossibleFields || ['key', 'summary', 'status', 'issuetype', 'created', 'resolutiondate', 'duedate', 'assignee'];
+    
+    // Ensure story points field is included
+    if (!fields.includes('customfield_10002')) {
+      fields.push('customfield_10002');
+    }
+    
+    // Make direct API call to get raw issues with all needed fields
+    const axios = require('axios');
+    const jiraConfig = configManager.getJiraConfig();
+    const baseUrl = jiraConfig.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    const cleanToken = userToken.trim().replace(/\r?\n/g, '');
+    
+    const searchUrl = `${baseUrl}/rest/api/2/search`;
+    console.log(`🔍 [API] Making request to: ${searchUrl}`);
+    console.log(`🔍 [API] JQL: ${baseJQL}`);
+    console.log(`🔍 [API] Fields count: ${fields.length}`);
+    console.log(`🔍 [API] Fields include customfield_10002: ${fields.includes('customfield_10002')}`);
+    console.log(`🔍 [API] Fields: ${fields.slice(0, 10).join(', ')}...`);
+    
+    let response;
+    try {
+      response = await axios.post(
+        searchUrl,
+        {
+          jql: baseJQL,
+          fields: fields,
+          maxResults: 1000
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${cleanToken}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          timeout: 30000
+        }
+      );
+    } catch (error) {
+      console.error(`❌ [API] Jira API request failed:`, {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: searchUrl
+      });
+      throw new Error(`Failed to fetch issues from Jira: ${error.response?.data?.message || error.message}`);
+    }
+    
+    const issues = response.data.issues || [];
+    console.log(`📊 [API] Found ${issues.length} related issues for ${featureKey}`);
+    
+    // Debug: Check if customfield_10002 is present in first issue
+    if (issues.length > 0) {
+      const firstIssue = issues[0];
+      console.log(`🔍 [API] Sample issue fields:`, {
+        key: firstIssue.key,
+        hasFields: !!firstIssue.fields,
+        hasCustomfield_10002: !!(firstIssue.fields?.customfield_10002),
+        customfield_10002_value: firstIssue.fields?.customfield_10002,
+        availableFields: firstIssue.fields ? Object.keys(firstIssue.fields).filter(k => k.includes('10002') || k.includes('story')).slice(0, 5) : []
+      });
+    }
+    
+    // Find kick off epic and fetch its tasks
+    const kickOffEpicTasks = await findKickOffEpicTasks(featureKey, issues, userToken);
+    
+    // Calculate metrics
+    const metrics = calculateFeatureMetrics(issues, featureKey);
+    metrics.kickOffEpicDueDates = kickOffEpicTasks;
+    
+    const duration = Date.now() - startTime;
+    console.log(`✅ [API] /api/feature-metrics/${featureKey} - Success in ${duration}ms`);
+    
+    res.json({
+      success: true,
+      metrics: metrics
+    });
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error(`❌ [API] /api/feature-metrics/${req.params.key} - Failed after ${duration}ms:`, error);
+    
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch feature metrics'
+    });
+  }
+});
+
+// Helper function to calculate feature metrics
+function calculateFeatureMetrics(issues, featureKey) {
+  const now = new Date();
+  const metrics = {
+    totalStoryPoints: 0,
+    completedStoryPoints: 0,
+    remainingStoryPoints: 0,
+    progressPercent: 0,
+    statusBreakdown: {},
+    tasks: {
+      totalCreated: 0,
+      totalResolved: 0,
+      open: 0,
+      velocity: 0,
+      timeline: []
+    },
+    bugs: {
+      totalCreated: 0,
+      totalResolved: 0,
+      open: 0,
+      velocity: 0,
+      timeline: []
+    },
+    tests: {
+      totalCreated: 0,
+      totalResolved: 0,
+      open: 0,
+      velocity: 0,
+      timeline: []
+    },
+    timeline: [],
+    totalPendingStoryPoints: 0,
+    itemsDue: 0,
+    overdue: 0
+  };
+  
+  // Group issues by date for timeline - separate for each type
+  const tasksDateGroups = {};
+  const bugsDateGroups = {};
+  const testsDateGroups = {};
+  
+  issues.forEach(issue => {
+    // Story points - stored in customfield_10002 (standard Jira field)
+    let storyPoints = 0;
+    if (issue.fields?.customfield_10002) {
+      storyPoints = parseFloat(issue.fields.customfield_10002);
+    }
+    
+    if (isNaN(storyPoints)) storyPoints = 0;
+    
+    // Debug logging for first few issues
+    if (issues.indexOf(issue) < 3) {
+      console.log(`🔍 [calculateFeatureMetrics] Issue ${issue.key}: storyPoints=${storyPoints}, customfield_10002=${issue.fields?.customfield_10002}`);
+    }
+    metrics.totalStoryPoints += storyPoints;
+    
+    // Status - try multiple paths
+    let status = 'Unknown';
+    if (issue.status) {
+      status = typeof issue.status === 'string' ? issue.status : (issue.status.name || issue.status.value || 'Unknown');
+    } else if (issue.fields?.status) {
+      status = typeof issue.fields.status === 'string' ? issue.fields.status : (issue.fields.status.name || issue.fields.status.value || 'Unknown');
+    }
+    
+    metrics.statusBreakdown[status] = (metrics.statusBreakdown[status] || 0) + 1;
+    
+    // Check if resolved
+    const statusLower = status.toLowerCase();
+    const isResolved = statusLower.includes('done') || 
+                      statusLower.includes('closed') || 
+                      statusLower.includes('resolved');
+    
+    if (isResolved) {
+      metrics.completedStoryPoints += storyPoints;
+    } else {
+      metrics.remainingStoryPoints += storyPoints;
+    }
+    
+    // Issue type - try multiple paths
+    let issueType = '';
+    if (issue.issuetype) {
+      issueType = typeof issue.issuetype === 'string' ? issue.issuetype : (issue.issuetype.name || issue.issuetype.value || '');
+    } else if (issue.fields?.issuetype) {
+      issueType = typeof issue.fields.issuetype === 'string' ? issue.fields.issuetype : (issue.fields.issuetype.name || issue.fields.issuetype.value || '');
+    }
+    issueType = issueType.toLowerCase();
+    
+    // Dates - standard Jira fields are in issue.fields
+    const createdDate = issue.fields?.created ? new Date(issue.fields.created) : null;
+    const resolvedDate = issue.fields?.resolutiondate ? new Date(issue.fields.resolutiondate) : null;
+    
+    // Process by type
+    if (issueType.includes('task') || issueType.includes('story')) {
+      metrics.tasks.totalCreated++;
+      if (isResolved) {
+        metrics.tasks.totalResolved++;
+      } else {
+        metrics.tasks.open++;
+      }
+      
+      if (createdDate) {
+        const dateKey = createdDate.toISOString().split('T')[0];
+        if (!tasksDateGroups[dateKey]) {
+          tasksDateGroups[dateKey] = { created: 0, resolved: 0 };
+        }
+        tasksDateGroups[dateKey].created++;
+      }
+      
+      if (resolvedDate) {
+        const dateKey = resolvedDate.toISOString().split('T')[0];
+        if (!tasksDateGroups[dateKey]) {
+          tasksDateGroups[dateKey] = { created: 0, resolved: 0 };
+        }
+        tasksDateGroups[dateKey].resolved++;
+      }
+    } else if (issueType.includes('bug')) {
+      metrics.bugs.totalCreated++;
+      if (isResolved) {
+        metrics.bugs.totalResolved++;
+      } else {
+        metrics.bugs.open++;
+      }
+      
+      if (createdDate) {
+        const dateKey = createdDate.toISOString().split('T')[0];
+        if (!bugsDateGroups[dateKey]) {
+          bugsDateGroups[dateKey] = { created: 0, resolved: 0 };
+        }
+        bugsDateGroups[dateKey].created++;
+      }
+      
+      if (resolvedDate) {
+        const dateKey = resolvedDate.toISOString().split('T')[0];
+        if (!bugsDateGroups[dateKey]) {
+          bugsDateGroups[dateKey] = { created: 0, resolved: 0 };
+        }
+        bugsDateGroups[dateKey].resolved++;
+      }
+    } else if (issueType.includes('test')) {
+      metrics.tests.totalCreated++;
+      if (isResolved) {
+        metrics.tests.totalResolved++;
+      } else {
+        metrics.tests.open++;
+      }
+      
+      if (createdDate) {
+        const dateKey = createdDate.toISOString().split('T')[0];
+        if (!testsDateGroups[dateKey]) {
+          testsDateGroups[dateKey] = { created: 0, resolved: 0 };
+        }
+        testsDateGroups[dateKey].created++;
+      }
+      
+      if (resolvedDate) {
+        const dateKey = resolvedDate.toISOString().split('T')[0];
+        if (!testsDateGroups[dateKey]) {
+          testsDateGroups[dateKey] = { created: 0, resolved: 0 };
+        }
+        testsDateGroups[dateKey].resolved++;
+      }
+    }
+    
+    // Timeline data (for due date analysis) - standard Jira fields
+    const dueDate = issue.fields?.duedate ? new Date(issue.fields.duedate) : null;
+    if (dueDate || !isResolved) {
+      // Extract components and priority
+      const components = issue.fields?.components || [];
+      const componentsList = components.length > 0 
+        ? components.map(c => c.name || c.id || 'Unknown').join(', ')
+        : 'None';
+      
+      const priority = issue.fields?.priority?.name || issue.fields?.priority || 'N/A';
+      
+      metrics.timeline.push({
+        key: issue.key, // 'key' is at top level in Jira API
+        summary: issue.fields?.summary || 'N/A',
+        status: status,
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        storyPoints: storyPoints,
+        assignee: issue.fields?.assignee?.displayName || issue.fields?.assignee || 'Unassigned',
+        components: componentsList,
+        priority: priority
+      });
+      
+      if (!isResolved) {
+        metrics.totalPendingStoryPoints += storyPoints;
+        if (dueDate) {
+          metrics.itemsDue++;
+          if (dueDate < now) {
+            metrics.overdue++;
+          }
+        }
+      }
+    }
+  });
+  
+  // Calculate progress
+  if (metrics.totalStoryPoints > 0) {
+    metrics.progressPercent = Math.round((metrics.completedStoryPoints / metrics.totalStoryPoints) * 100);
+  }
+  
+  // Build timeline for charts (group by week) - separate for each type
+  function buildTimeline(dateGroups) {
+    const weekGroups = {};
+    Object.keys(dateGroups).sort().forEach(dateKey => {
+      const date = new Date(dateKey);
+      const weekKey = getWeekKey(date);
+      if (!weekGroups[weekKey]) {
+        weekGroups[weekKey] = { created: 0, resolved: 0, date: dateKey };
+      }
+      weekGroups[weekKey].created += dateGroups[dateKey].created;
+      weekGroups[weekKey].resolved += dateGroups[dateKey].resolved;
+    });
+    
+    return Object.values(weekGroups).sort((a, b) => 
+      new Date(a.date) - new Date(b.date)
+    );
+  }
+  
+  metrics.tasks.timeline = buildTimeline(tasksDateGroups);
+  metrics.bugs.timeline = buildTimeline(bugsDateGroups);
+  metrics.tests.timeline = buildTimeline(testsDateGroups);
+  
+  // Calculate velocity (resolved per week, average over last 4 weeks) - separate for each type
+  const tasksRecentWeeks = metrics.tasks.timeline.slice(-4);
+  if (tasksRecentWeeks.length > 0) {
+    const totalResolved = tasksRecentWeeks.reduce((sum, week) => sum + week.resolved, 0);
+    metrics.tasks.velocity = Math.round(totalResolved / tasksRecentWeeks.length);
+  }
+  
+  const bugsRecentWeeks = metrics.bugs.timeline.slice(-4);
+  if (bugsRecentWeeks.length > 0) {
+    const totalResolved = bugsRecentWeeks.reduce((sum, week) => sum + week.resolved, 0);
+    metrics.bugs.velocity = Math.round(totalResolved / bugsRecentWeeks.length);
+  }
+  
+  const testsRecentWeeks = metrics.tests.timeline.slice(-4);
+  if (testsRecentWeeks.length > 0) {
+    const totalResolved = testsRecentWeeks.reduce((sum, week) => sum + week.resolved, 0);
+    metrics.tests.velocity = Math.round(totalResolved / testsRecentWeeks.length);
+  }
+  
+  return metrics;
+}
+
+// Helper to get week key (YYYY-WW format)
+function getWeekKey(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getFullYear()}-W${week}`;
+}
+
+// Find kick off epic and fetch all tasks with due dates
+async function findKickOffEpicTasks(featureKey, issues, userToken) {
+  try {
+    // Find epics related to this feature - standard Jira fields
+    const epics = issues.filter(issue => {
+      const issueType = (issue.fields?.issuetype?.name || issue.fields?.issuetype || '').toLowerCase();
+      return issueType.includes('epic');
+    });
+    
+    console.log(`🔍 [findKickOffEpicTasks] Found ${epics.length} epics for ${featureKey}`);
+    
+    // Find kick off epic - look for epic with "kick off" or "kickoff" in name/summary
+    let kickOffEpic = epics.find(epic => {
+      const summary = (epic.fields?.summary || '').toLowerCase();
+      const key = (epic.key || '').toLowerCase(); // 'key' is at top level
+      return summary.includes('kick off') || summary.includes('kickoff') || 
+             summary.includes('kick-off') || key.includes('kickoff');
+    });
+    
+    // If no explicit kick off epic found, use the first epic
+    if (!kickOffEpic && epics.length > 0) {
+      kickOffEpic = epics[0];
+      console.log(`⚠️ [findKickOffEpicTasks] No explicit kick off epic found, using first epic: ${kickOffEpic.key}`);
+    }
+    
+    if (!kickOffEpic) {
+      console.log(`⚠️ [findKickOffEpicTasks] No epic found for ${featureKey}`);
+      return {
+        epicKey: null,
+        epicSummary: 'Not found',
+        tasks: []
+      };
+    }
+    
+    console.log(`✅ [findKickOffEpicTasks] Found kick off epic: ${kickOffEpic.key} - ${kickOffEpic.fields?.summary || 'N/A'}`);
+    
+    // Fetch all tasks linked to this epic
+    const axios = require('axios');
+    const ConfigManager = require('./config');
+    const configManager = new ConfigManager();
+    const jiraConfig = configManager.getJiraConfig();
+    const baseUrl = jiraConfig.baseUrl;
+    const cleanToken = userToken.trim().replace(/\r?\n/g, '');
+    
+    // JQL to find all tasks in this epic
+    const epicJQL = `"Epic Link" = ${kickOffEpic.key} AND issuetype IN (Task, Story, Sub-task)`;
+    
+    const response = await axios.get(`${baseUrl}/rest/api/2/search`, {
+      headers: {
+        'Authorization': `Bearer ${cleanToken}`,
+        'Accept': 'application/json'
+      },
+      params: {
+        jql: epicJQL,
+        fields: 'key,summary,duedate,status,assignee,issuetype',
+        maxResults: 1000
+      },
+      timeout: 30000
+    });
+    
+    const epicTasks = response.data.issues || [];
+    console.log(`📋 [findKickOffEpicTasks] Found ${epicTasks.length} tasks in kick off epic ${kickOffEpic.key}`);
+    
+    // Extract due dates and format
+    const tasksWithDueDates = epicTasks
+      .filter(task => task.fields?.duedate)
+      .map(task => ({
+        key: task.key,
+        summary: task.fields.summary || 'N/A',
+        dueDate: task.fields.duedate,
+        status: task.fields.status?.name || 'Unknown',
+        assignee: task.fields.assignee?.displayName || 'Unassigned',
+        issueType: task.fields.issuetype?.name || 'Task'
+      }))
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    
+    console.log(`📅 [findKickOffEpicTasks] Found ${tasksWithDueDates.length} tasks with due dates`);
+    
+    return {
+      epicKey: kickOffEpic.key,
+      epicSummary: kickOffEpic.fields?.summary || 'N/A',
+      tasks: tasksWithDueDates
+    };
+  } catch (error) {
+    console.error(`❌ [findKickOffEpicTasks] Error:`, error.message);
+    return {
+      epicKey: null,
+      epicSummary: 'Not found',
+      tasks: []
+    };
+  }
+}
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);

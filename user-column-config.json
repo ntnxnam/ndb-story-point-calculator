@@ -8,13 +8,6 @@
       "active": true
     },
     {
-      "key": "assignee",
-      "label": "Assignee",
-      "type": "text",
-      "jiraField": "assignee",
-      "active": true
-    },
-    {
       "key": "summary",
       "label": "Summary",
       "type": "text",
@@ -29,13 +22,6 @@
       "active": true
     },
     {
-      "key": "components",
-      "label": "Components",
-      "type": "text",
-      "jiraField": "components",
-      "active": true
-    },
-    {
       "key": "priority",
       "label": "Priority",
       "type": "text",
@@ -43,24 +29,87 @@
       "active": true
     },
     {
-      "key": "resolution",
-      "label": "Resolution",
+      "key": "customfield_23560",
+      "label": "Risk Indicator",
       "type": "text",
-      "jiraField": "resolution.name",
+      "jiraField": "customfield_23560",
+      "active": true
+    },
+    {
+      "key": "fixVersions",
+      "label": "Fix Version",
+      "type": "text",
+      "jiraField": "fixVersions",
+      "active": true
+    },
+    {
+      "key": "customfield_10002",
+      "label": "Story Points",
+      "type": "text",
+      "jiraField": "customfield_10002",
+      "active": true
+    },
+    {
+      "key": "assignee",
+      "label": "Assignee",
+      "type": "text",
+      "jiraField": "assignee",
+      "active": true
+    },
+    {
+      "key": "duedate",
+      "label": "Due Date",
+      "type": "date",
+      "jiraField": "duedate",
+      "active": true
+    },
+    {
+      "key": "percentComplete",
+      "label": "% Complete",
+      "type": "text",
+      "jiraField": "percentComplete",
+      "active": true
+    },
+    {
+      "key": "components",
+      "label": "Components",
+      "type": "text",
+      "jiraField": "components",
+      "active": true
+    },
+    {
+      "key": "cg",
+      "label": "CG Completion",
+      "type": "confluence",
+      "jiraField": "customfield_10000",
+      "active": true
+    },
+    {
+      "key": "pg",
+      "label": "PG Completion",
+      "type": "confluence",
+      "jiraField": "customfield_10001",
       "active": true
     },
     {
       "key": "customfield_23073",
-      "label": "Customfield 23073",
+      "label": "Status Update",
       "type": "text",
       "jiraField": "customfield_23073",
       "active": true
     },
     {
-      "key": "customfield_23560",
-      "label": "Customfield 23560",
-      "type": "text",
-      "jiraField": "customfield_23560",
+      "key": "created",
+      "label": "Created",
+      "type": "date",
+      "jiraField": "created",
+      "active": true
+    },
+    {
+      "key": "updated",
+      "label": "Updated",
+      "type": "date",
+      "jiraField": "updated",
       "active": true
     }
   ]

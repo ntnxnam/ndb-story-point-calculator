@@ -25,14 +25,6 @@
       "isEditable": false
     },
     {
-      "key": "assignee",
-      "label": "Assignee",
-      "type": "text",
-      "jiraField": "assignee.displayName",
-      "isDefault": true,
-      "isEditable": false
-    },
-    {
       "key": "priority",
       "label": "Priority",
       "type": "badge",
@@ -41,26 +33,10 @@
       "isEditable": false
     },
     {
-      "key": "issuetype",
-      "label": "Type",
+      "key": "customfield_23560",
+      "label": "Risk Indicator",
       "type": "badge",
-      "jiraField": "issuetype.name",
-      "isDefault": true,
-      "isEditable": false
-    },
-    {
-      "key": "created",
-      "label": "Created",
-      "type": "date",
-      "jiraField": "created",
-      "isDefault": true,
-      "isEditable": false
-    },
-    {
-      "key": "updated",
-      "label": "Updated",
-      "type": "date",
-      "jiraField": "updated",
+      "jiraField": "customfield_23560",
       "isDefault": true,
       "isEditable": false
     },
@@ -73,14 +49,45 @@
       "isEditable": false
     },
     {
-      "key": "ndb_2_11_wishlist",
-      "label": "Wishlist",
-      "type": "labelCheck",
-      "jiraField": "labels",
-      "labelPattern": "fixVersion",
+      "key": "customfield_10002",
+      "label": "Story Points",
+      "type": "text",
+      "jiraField": "customfield_10002",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "assignee",
+      "label": "Assignee",
+      "type": "text",
+      "jiraField": "assignee.displayName",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "duedate",
+      "label": "Due Date",
+      "type": "date",
+      "jiraField": "duedate",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "percentComplete",
+      "label": "% Complete",
+      "type": "text",
+      "jiraField": "percentComplete",
       "isDefault": true,
       "isEditable": false,
-      "note": "Dynamically checks for wishlist label based on fix version (e.g., NDB-2.11 -> ndb-2.11-wishlist)"
+      "note": "Calculated field based on status"
+    },
+    {
+      "key": "components",
+      "label": "Components",
+      "type": "text",
+      "jiraField": "components",
+      "isDefault": true,
+      "isEditable": false
     },
     {
       "key": "cg",
@@ -101,10 +108,26 @@
       "note": "Update customfield_10001 with actual PG custom field ID from your Jira instance"
     },
     {
-      "key": "customfield_35863",
-      "label": "PRFAQ / One-Pager",
+      "key": "customfield_23073",
+      "label": "Status Update",
       "type": "text",
-      "jiraField": "customfield_35863",
+      "jiraField": "customfield_23073",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "created",
+      "label": "Created",
+      "type": "date",
+      "jiraField": "created",
+      "isDefault": true,
+      "isEditable": false
+    },
+    {
+      "key": "updated",
+      "label": "Updated",
+      "type": "date",
+      "jiraField": "updated",
       "isDefault": true,
       "isEditable": false
     }
@@ -156,7 +179,9 @@
     "customfield_10050",
     "customfield_23073",
     "customfield_23560",
-    "customfield_35863"
+    "customfield_35863",
+    "customfield_10002",
+    "duedate"
   ],
   "jira": {
     "baseUrl": "https://jira.nutanix.com/",
